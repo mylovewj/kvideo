@@ -27,7 +27,9 @@ export function Button({
     `,
     secondary: `
       bg-[var(--glass-bg)] 
-      backdrop-blur-xl 
+      backdrop-blur-xl
+      [-webkit-backdrop-filter:blur(25px)_saturate(180%)]
+      saturate-[180%]
       border 
       border-[var(--glass-border)] 
       rounded-[var(--radius-2xl)]

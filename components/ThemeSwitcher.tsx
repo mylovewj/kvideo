@@ -6,7 +6,7 @@ export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="inline-flex bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] rounded-[var(--radius-full)] p-1 shadow-[var(--shadow-sm)]">
+    <div className="inline-flex bg-[var(--glass-bg)] backdrop-blur-xl [-webkit-backdrop-filter:blur(25px)] border border-[var(--glass-border)] rounded-[var(--radius-full)] p-1 shadow-[var(--shadow-sm)]">
       <button
         onClick={() => setTheme('light')}
         className={`
