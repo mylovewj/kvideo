@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
     // Get all videos from all sources
     const allVideos = searchResults.flatMap(r => r.results);
 
-    // Check each video individually
-    const availableVideos = await checkMultipleVideos(allVideos, 10);
+    // Check each video individually with improved accuracy (reduced concurrency)
+    const availableVideos = await checkMultipleVideos(allVideos, 8);
 
     // Group available videos by source
     const videosBySource = new Map<string, any[]>();
@@ -183,8 +183,8 @@ export async function GET(request: NextRequest) {
     // Get all videos from all sources
     const allVideos = searchResults.flatMap(r => r.results);
 
-    // Check each video individually
-    const availableVideos = await checkMultipleVideos(allVideos, 10);
+    // Check each video individually with improved accuracy (reduced concurrency)
+    const availableVideos = await checkMultipleVideos(allVideos, 8);
 
     // Group available videos by source
     const videosBySource = new Map<string, any[]>();
