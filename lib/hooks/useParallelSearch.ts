@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { getSourceName, SOURCE_IDS } from '@/lib/utils/source-names';
-import { checkVideoAvailability } from '@/lib/utils/source-checker';
 import { calculateRelevanceScore } from '@/lib/utils/search';
 
 interface Video {
@@ -15,7 +14,6 @@ interface Video {
   source: string;
   sourceName?: string;
   isNew?: boolean;
-  isVerifying?: boolean;
   vod_play_url?: string;
   vod_actor?: string;
   vod_director?: string;
@@ -47,106 +45,6 @@ export function useParallelSearch(
   const currentQueryRef = useRef<string>('');
   
   const abortControllerRef = useRef<AbortController | null>(null);
-  const verificationQueueRef = useRef<Video[]>([]);
-  const verifyingCountRef = useRef(0);
-  const allVideosReceivedRef = useRef(false);
-  const MAX_CONCURRENT_VERIFICATIONS = 15;
-
-  /**
-   * Process verification queue
-   * Verifies videos in parallel with a max concurrency limit
-   */
-  const processVerificationQueue = useCallback(async () => {
-    while (verificationQueueRef.current.length > 0 && verifyingCountRef.current < MAX_CONCURRENT_VERIFICATIONS) {
-      const video = verificationQueueRef.current.shift();
-      if (!video) continue;
-
-      verifyingCountRef.current++;
-
-      // Verify in background
-      checkVideoAvailability(video)
-        .then((isValid) => {
-          verifyingCountRef.current--;
-
-          setResults((prev) => {
-            if (isValid) {
-              // Remove verifying badge, maintain sort order
-              const updated = prev.map((v) =>
-                v.vod_id === video.vod_id && v.source === video.source
-                  ? { ...v, isVerifying: false }
-                  : v
-              );
-              // Re-sort by relevance to maintain order
-              return updated.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
-            } else {
-              // Remove invalid video
-              const removedVideo = prev.find(
-                (v) => v.vod_id === video.vod_id && v.source === video.source
-              );
-              
-              if (removedVideo && allVideosReceivedRef.current) {
-                // Update source count when removing video after search is complete
-                setAvailableSources((sources) =>
-                  sources.map((s) =>
-                    s.id === removedVideo.source
-                      ? { ...s, count: Math.max(0, s.count - 1) }
-                      : s
-                  ).filter(s => s.count > 0)
-                );
-              }
-              
-              const filtered = prev.filter(
-                (v) => !(v.vod_id === video.vod_id && v.source === video.source)
-              );
-              // Maintain sort order
-              return filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
-            }
-          });
-
-          // Continue processing queue
-          processVerificationQueue();
-        })
-        .catch((error) => {
-          console.error('Verification error:', error);
-          verifyingCountRef.current--;
-          
-          // Remove video on error
-          setResults((prev) => {
-            const removedVideo = prev.find(
-              (v) => v.vod_id === video.vod_id && v.source === video.source
-            );
-            
-            if (removedVideo && allVideosReceivedRef.current) {
-              // Update source count when removing video
-              setAvailableSources((sources) =>
-                sources.map((s) =>
-                  s.id === removedVideo.source
-                    ? { ...s, count: Math.max(0, s.count - 1) }
-                    : s
-                ).filter(s => s.count > 0)
-              );
-            }
-            
-            const filtered = prev.filter(
-              (v) => !(v.vod_id === video.vod_id && v.source === video.source)
-            );
-            // Maintain sort order
-            return filtered.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
-          });
-
-          // Continue processing queue
-          processVerificationQueue();
-        });
-    }
-  }, []);
-
-  /**
-   * Add videos to verification queue
-   */
-  const queueVideosForVerification = useCallback((videos: Video[]) => {
-    verificationQueueRef.current.push(...videos);
-    processVerificationQueue();
-  }, [processVerificationQueue]);
 
   /**
    * Perform parallel search with streaming results
@@ -167,9 +65,6 @@ export function useParallelSearch(
     setCompletedSources(0);
     setTotalSources(0);
     setTotalVideosFound(0);
-    verificationQueueRef.current = [];
-    verifyingCountRef.current = 0;
-    allVideosReceivedRef.current = false;
     currentQueryRef.current = searchQuery.trim();
 
     // Update URL
@@ -216,7 +111,6 @@ export function useParallelSearch(
                 ...video,
                 sourceName: video.sourceDisplayName || getSourceName(video.source),
                 isNew: true,
-                isVerifying: true, // All videos start as verifying
                 relevanceScore: calculateRelevanceScore(video, currentQuery),
               }));
 
@@ -228,9 +122,6 @@ export function useParallelSearch(
                 // Sort by relevance score (highest first)
                 return combined.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
               });
-
-              // Queue videos for verification
-              queueVideosForVerification(newVideos);
 
               // Update source stats
               if (!sourcesMap.has(data.source)) {
@@ -246,7 +137,6 @@ export function useParallelSearch(
             } 
             else if (data.type === 'complete') {
               setLoading(false);
-              allVideosReceivedRef.current = true;
               
               console.log(`[useParallelSearch] Search complete: ${data.totalVideosFound} videos found`);
               console.log(`[useParallelSearch] Sources with videos: ${sourcesMap.size}`);
@@ -286,7 +176,7 @@ export function useParallelSearch(
       }
       setLoading(false);
     }
-  }, [loading, onUrlUpdate, onCacheUpdate, queueVideosForVerification]);
+  }, [loading, onUrlUpdate, onCacheUpdate]);
 
   /**
    * Reset search state
@@ -301,9 +191,6 @@ export function useParallelSearch(
     setCompletedSources(0);
     setTotalSources(0);
     setTotalVideosFound(0);
-    verificationQueueRef.current = [];
-    verifyingCountRef.current = 0;
-    allVideosReceivedRef.current = false;
     currentQueryRef.current = '';
   }, []);
 
@@ -315,7 +202,6 @@ export function useParallelSearch(
     setResults(cachedResults);
     setAvailableSources(cachedSources);
     setTotalVideosFound(cachedResults.length);
-    allVideosReceivedRef.current = true;
   }, []);
 
   return {

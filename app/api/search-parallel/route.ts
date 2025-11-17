@@ -73,7 +73,6 @@ export async function POST(request: NextRequest) {
                 type: 'videos',
                 videos: videos.map((video: any) => ({
                   ...video,
-                  isVerifying: true, // Mark for verification
                   sourceDisplayName: getSourceDisplayName(source.id),
                 })),
                 source: source.id,
