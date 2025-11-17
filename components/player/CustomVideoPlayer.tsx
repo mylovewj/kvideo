@@ -33,11 +33,32 @@ export function CustomVideoPlayer({
   const [isLoading, setIsLoading] = useState(true);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [isPiPSupported, setIsPiPSupported] = useState(false);
+  const [isAirPlaySupported, setIsAirPlaySupported] = useState(false);
+  const [skipForwardAmount, setSkipForwardAmount] = useState(0);
+  const [skipBackwardAmount, setSkipBackwardAmount] = useState(0);
+  const [showSkipForwardIndicator, setShowSkipForwardIndicator] = useState(false);
+  const [showSkipBackwardIndicator, setShowSkipBackwardIndicator] = useState(false);
+  const [isSkipForwardAnimatingOut, setIsSkipForwardAnimatingOut] = useState(false);
+  const [isSkipBackwardAnimatingOut, setIsSkipBackwardAnimatingOut] = useState(false);
   
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const speedMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const skipForwardTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const skipBackwardTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isDraggingProgressRef = useRef(false);
   const isDraggingVolumeRef = useRef(false);
+
+  // Check for PiP and AirPlay support
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setIsPiPSupported('pictureInPictureEnabled' in document);
+    }
+    if (typeof window !== 'undefined') {
+      // Check for AirPlay support (Safari/WebKit)
+      setIsAirPlaySupported('WebKitPlaybackTargetAvailabilityEvent' in window);
+    }
+  }, []);
 
   // Auto-hide controls
   useEffect(() => {
@@ -248,6 +269,118 @@ export function CustomVideoPlayer({
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  // Picture-in-Picture
+  const togglePictureInPicture = async () => {
+    if (!videoRef.current || !isPiPSupported) return;
+
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else {
+        await videoRef.current.requestPictureInPicture();
+      }
+    } catch (error) {
+      console.error('Failed to toggle Picture-in-Picture:', error);
+    }
+  };
+
+  // AirPlay
+  const showAirPlayMenu = () => {
+    if (!videoRef.current || !isAirPlaySupported) return;
+
+    const video = videoRef.current as any;
+    if (video.webkitShowPlaybackTargetPicker) {
+      video.webkitShowPlaybackTargetPicker();
+    }
+  };
+
+  // Skip forward/backward with visual feedback
+  const skipForward = () => {
+    if (!videoRef.current) return;
+    
+    // Clear backward indicator immediately
+    setShowSkipBackwardIndicator(false);
+    setSkipBackwardAmount(0);
+    setIsSkipBackwardAnimatingOut(false);
+    if (skipBackwardTimeoutRef.current) {
+      clearTimeout(skipBackwardTimeoutRef.current);
+    }
+    
+    // Clear existing timeout
+    if (skipForwardTimeoutRef.current) {
+      clearTimeout(skipForwardTimeoutRef.current);
+    }
+    
+    // Accumulate skip amount
+    const newSkipAmount = skipForwardAmount + 10;
+    setSkipForwardAmount(newSkipAmount);
+    setShowSkipForwardIndicator(true);
+    setIsSkipForwardAnimatingOut(false);
+    
+    // Actually skip the video
+    videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 10, duration);
+    
+    // Start fade out animation after 200ms (half of original 400ms)
+    skipForwardTimeoutRef.current = setTimeout(() => {
+      setIsSkipForwardAnimatingOut(true);
+      // Hide indicator after animation completes (200ms)
+      setTimeout(() => {
+        setShowSkipForwardIndicator(false);
+        setSkipForwardAmount(0);
+        setIsSkipForwardAnimatingOut(false);
+      }, 200);
+    }, 200);
+  };
+
+  const skipBackward = () => {
+    if (!videoRef.current) return;
+    
+    // Clear forward indicator immediately
+    setShowSkipForwardIndicator(false);
+    setSkipForwardAmount(0);
+    setIsSkipForwardAnimatingOut(false);
+    if (skipForwardTimeoutRef.current) {
+      clearTimeout(skipForwardTimeoutRef.current);
+    }
+    
+    // Clear existing timeout
+    if (skipBackwardTimeoutRef.current) {
+      clearTimeout(skipBackwardTimeoutRef.current);
+    }
+    
+    // Accumulate skip amount
+    const newSkipAmount = skipBackwardAmount + 10;
+    setSkipBackwardAmount(newSkipAmount);
+    setShowSkipBackwardIndicator(true);
+    setIsSkipBackwardAnimatingOut(false);
+    
+    // Actually skip the video
+    videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 10, 0);
+    
+    // Start fade out animation after 200ms (half of original 400ms)
+    skipBackwardTimeoutRef.current = setTimeout(() => {
+      setIsSkipBackwardAnimatingOut(true);
+      // Hide indicator after animation completes (200ms)
+      setTimeout(() => {
+        setShowSkipBackwardIndicator(false);
+        setSkipBackwardAmount(0);
+        setIsSkipBackwardAnimatingOut(false);
+      }, 200);
+    }, 200);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (skipForwardTimeoutRef.current) {
+        clearTimeout(skipForwardTimeoutRef.current);
+      }
+      if (skipBackwardTimeoutRef.current) {
+        clearTimeout(skipBackwardTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Playback speed
   const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
   
@@ -326,6 +459,28 @@ export function CustomVideoPlayer({
         </div>
       )}
 
+      {/* Skip Forward Indicator */}
+      {showSkipForwardIndicator && (
+        <div className="absolute top-1/2 right-12 -translate-y-1/2 pointer-events-none transition-all duration-300">
+          <div className={`text-white text-3xl font-bold drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] ${
+            isSkipForwardAnimatingOut ? 'animate-scale-out' : 'animate-scale-in'
+          }`}>
+            +{skipForwardAmount}
+          </div>
+        </div>
+      )}
+
+      {/* Skip Backward Indicator */}
+      {showSkipBackwardIndicator && (
+        <div className="absolute top-1/2 left-12 -translate-y-1/2 pointer-events-none transition-all duration-300">
+          <div className={`text-white text-3xl font-bold drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] ${
+            isSkipBackwardAnimatingOut ? 'animate-scale-out' : 'animate-scale-in'
+          }`}>
+            -{skipBackwardAmount}
+          </div>
+        </div>
+      )}
+
       {/* Center Play Button (when paused) */}
       {!isPlaying && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -378,6 +533,26 @@ export function CustomVideoPlayer({
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Icons.Pause size={20} /> : <Icons.Play size={20} />}
+              </button>
+
+              {/* Skip Backward 10s */}
+              <button
+                onClick={skipBackward}
+                className="btn-icon"
+                aria-label="Skip backward 10 seconds"
+                title="后退 10 秒"
+              >
+                <Icons.SkipBack size={20} />
+              </button>
+
+              {/* Skip Forward 10s */}
+              <button
+                onClick={skipForward}
+                className="btn-icon"
+                aria-label="Skip forward 10 seconds"
+                title="快进 10 秒"
+              >
+                <Icons.SkipForward size={20} />
               </button>
 
               {/* Volume */}
@@ -462,6 +637,30 @@ export function CustomVideoPlayer({
                   </div>
                 )}
               </div>
+
+              {/* Picture-in-Picture */}
+              {isPiPSupported && (
+                <button
+                  onClick={togglePictureInPicture}
+                  className="btn-icon"
+                  aria-label="Picture-in-Picture"
+                  title="画中画"
+                >
+                  <Icons.PictureInPicture size={20} />
+                </button>
+              )}
+
+              {/* AirPlay */}
+              {isAirPlaySupported && (
+                <button
+                  onClick={showAirPlayMenu}
+                  className="btn-icon"
+                  aria-label="AirPlay"
+                  title="AirPlay"
+                >
+                  <Icons.Airplay size={20} />
+                </button>
+              )}
 
               {/* Fullscreen */}
               <button

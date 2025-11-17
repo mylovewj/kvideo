@@ -363,6 +363,74 @@ export const Icons = {
     </svg>
   ),
 
+  SkipForward: ({ className = "", size = 24 }: IconProps) => (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polygon points="5 4 15 12 5 20 5 4"/>
+      <line x1="19" y1="5" x2="19" y2="19"/>
+    </svg>
+  ),
+
+  SkipBack: ({ className = "", size = 24 }: IconProps) => (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polygon points="19 20 9 12 19 4 19 20"/>
+      <line x1="5" y1="19" x2="5" y2="5"/>
+    </svg>
+  ),
+
+  PictureInPicture: ({ className = "", size = 24 }: IconProps) => (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+      <rect x="13" y="10" width="7" height="7" rx="1" ry="1"/>
+    </svg>
+  ),
+
+  Airplay: ({ className = "", size = 24 }: IconProps) => (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/>
+      <polygon points="12 15 17 21 7 21 12 15"/>
+    </svg>
+  ),
+
   Check: ({ className = "", size = 24 }: IconProps) => (
     <svg 
       width={size} 
