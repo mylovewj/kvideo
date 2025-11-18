@@ -1,317 +1,410 @@
 # KVideo
 
-> A modern, elegant video streaming platform with intelligent source aggregation
+> 基于 Liquid Glass 设计理念的现代化流媒体视频聚合平台
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.0.3-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2-blue?style=flat-square&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-## Table of Contents
+## 目录
 
-- [About The Project](#about-the-project)
-  - [Built With](#built-with)
-  - [Key Features](#key-features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-  - [Development Server](#development-server)
-  - [Production Build](#production-build)
-- [Architecture](#architecture)
-  - [Project Structure](#project-structure)
-  - [Core Components](#core-components)
-- [Design System](#design-system)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- [关于项目](#关于项目)
+  - [核心特性](#核心特性)
+  - [技术栈](#技术栈)
+  - [设计理念](#设计理念)
+- [快速开始](#快速开始)
+  - [系统要求](#系统要求)
+  - [安装步骤](#安装步骤)
+- [使用指南](#使用指南)
+  - [开发模式](#开发模式)
+  - [生产构建](#生产构建)
+- [核心功能](#核心功能)
+  - [智能并行搜索](#智能并行搜索)
+  - [实时流式传输](#实时流式传输)
+  - [源可用性检测](#源可用性检测)
+  - [观看历史管理](#观看历史管理)
+  - [自适应视频播放器](#自适应视频播放器)
+- [项目架构](#项目架构)
+- [贡献指南](#贡献指南)
+- [许可证](#许可证)
+- [联系方式](#联系方式)
 
-## About The Project
+## 关于项目
 
-KVideo is a sophisticated video streaming platform that intelligently aggregates content from multiple video sources, providing users with a seamless, unified viewing experience. Built with modern web technologies and designed with the "Liquid Glass" design philosophy, KVideo offers an elegant, intuitive interface that adapts beautifully to both light and dark modes.
+KVideo 是一个现代化的流媒体视频聚合平台，采用 **Liquid Glass** 设计系统打造极致的用户体验。平台通过智能并行搜索技术，实时聚合多个视频源的内容，为用户提供流畅、直观且视觉震撼的观影体验。
 
-The platform features intelligent source checking, automatic failover, playback history tracking, and a fully responsive design that works flawlessly across all devices.
+### 核心特性
 
-### Built With
+- 🔍 **智能并行搜索** - 同时查询 15+ 视频源，实时流式返回结果
+- 🎬 **自适应播放器** - 支持 HLS/M3U8 流，自动源切换，断点续播
+- 🎨 **Liquid Glass UI** - 毛玻璃效果，流体动画，深浅色主题无缝切换
+- ⚡ **实时可用性检测** - 搜索时自动过滤失效源，确保播放成功率
+- 📊 **类型智能筛选** - 自动识别分类（电影/剧集/综艺），支持多选过滤
+- 📚 **观看历史追踪** - 自动记录播放进度，快速恢复观看
+- 🌐 **无服务器架构** - 基于 Next.js App Router，API Routes 处理所有后端逻辑
+- 📱 **响应式设计** - 完美适配桌面、平板、移动设备
 
-KVideo is built using cutting-edge web technologies:
+### 技术栈
 
-- **[Next.js 16](https://nextjs.org/)** - React framework with App Router
-- **[React 19](https://reactjs.org/)** - UI library with modern hooks
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first styling
-- **[Artplayer](https://artplayer.org/)** - Advanced HTML5 video player
-- **[HLS.js](https://github.com/video-dev/hls.js/)** - HLS streaming support
-- **[Zustand](https://github.com/pmndrs/zustand)** - Lightweight state management
+**前端框架**
+- [Next.js 16.0](https://nextjs.org/) - React 元框架，提供服务端渲染和路由
+- [React 19.2](https://reactjs.org/) - 用户界面构建库
+- [TypeScript 5.x](https://www.typescriptlang.org/) - 类型安全的 JavaScript 超集
 
-### Key Features
+**样式系统**
+- [Tailwind CSS 4.0](https://tailwindcss.com/) - 实用优先的 CSS 框架
+- 自定义 Liquid Glass CSS 变量系统
 
-#### 🎯 **Intelligent Multi-Source Aggregation**
-- Automatically searches across multiple video sources
-- Smart source validation and availability checking
-- Real-time source health monitoring
-- Automatic failover to working sources
+**状态管理 & 工具**
+- [Zustand 5.0](https://github.com/pmndrs/zustand) - 轻量级状态管理
+- [Artplayer 5.1](https://artplayer.org/) - 现代化 HTML5 视频播放器
+- [HLS.js 1.5](https://github.com/video-dev/hls.js/) - HLS 流协议支持
 
-#### 🎨 **Modern "Liquid Glass" UI**
-- Beautiful glassmorphism design system
-- Smooth animations and transitions
-- Comprehensive component library
-- Dark/Light theme support with system detection
+**视频源整合**
+- 电影天堂、如意、暴风、天涯等 15+ 第三方视频 API
+- 自定义源配置系统，支持动态添加
 
-#### 🎬 **Advanced Video Player**
-- HLS streaming support
-- Episode management and auto-play
-- Playback progress tracking
-- Customizable playback controls
-- Picture-in-Picture support
+### 设计理念
 
-#### 📚 **Smart History Management**
-- Automatic playback position saving
-- Intelligent show deduplication
-- Cross-device history sync
-- Episode progress tracking
+KVideo 严格遵循 **Liquid Glass** 设计系统，灵感源自 Apple 的 visionOS 和 Jony Ive 的极简主义哲学：
 
-#### 🔍 **Enhanced Search Experience**
-- Real-time search results
-- Search result caching (10-minute duration)
-- Loading animations with progress indicators
-- Source availability badges
-- **🏷️ Auto-collected type badges with filtering** (NEW!)
-  - Automatically collects category badges from search results
-  - Interactive filtering by video type/category
-  - Real-time badge count updates
-  - Smart badge removal when videos are deleted
-  - Beautiful Liquid Glass design integration
+1. **玻璃效果** - 毛玻璃材质（`backdrop-filter: blur(25px) saturate(180%)`）营造深度感
+2. **通用柔软度** - 所有元素采用 `rounded-2xl` 或 `rounded-full` 圆角，无硬边
+3. **流体动画** - 物理感知的缓动曲线（`cubic-bezier(0.2, 0.8, 0.2, 1)`）
+4. **光学交互** - 悬停时内发光效果，仿佛组件在捕捉光线
+5. **层次分明** - 清晰的 Z 轴深度，交互层始终位于视觉顶部
 
-#### 📱 **Fully Responsive**
-- Mobile-first design approach
-- Optimized for all screen sizes
-- Touch-friendly interface
-- Progressive Web App ready
+## 快速开始
 
-## Getting Started
+### 系统要求
 
-Follow these steps to get KVideo running on your local machine.
+- **Node.js** 20.x 或更高版本
+- **npm** 或 **pnpm** 包管理器
+- 现代浏览器（Chrome 90+、Safari 14+、Firefox 88+）
 
-### Prerequisites
+### 安装步骤
 
-Ensure you have the following installed:
+1. **克隆仓库**
+   ```bash
+   git clone https://github.com/KuekHaoYang/kvideo.git
+   cd kvideo
+   ```
 
-- **Node.js** (v18.0.0 or higher)
-- **npm** (v9.0.0 or higher) or **yarn** (v1.22.0 or higher)
+2. **安装依赖**
+   ```bash
+   npm install
+   # 或使用 pnpm
+   pnpm install
+   ```
 
-```sh
-# Check your Node.js version
-node --version
+3. **启动开发服务器**
+   ```bash
+   npm run dev
+   ```
 
-# Check your npm version
-npm --version
-```
+4. **访问应用**
+   
+   打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
-### Installation
+## 使用指南
 
-1. **Clone the repository**
+### 开发模式
 
-```sh
-git clone https://github.com/KuekHaoYang/Video.git
-cd kvideo
-```
+开发模式支持热重载和快速调试：
 
-2. **Install dependencies**
-
-```sh
-npm install
-```
-
-3. **Set up environment variables (optional)**
-
-Create a `.env.local` file in the root directory if you need to configure custom settings:
-
-```env
-# Add any environment-specific configuration here
-NEXT_PUBLIC_API_URL=your_api_url
-```
-
-4. **Run the development server**
-
-```sh
+```bash
 npm run dev
 ```
 
-5. **Open your browser**
+应用将在 `http://localhost:3000` 启动，代码更改会自动刷新页面。
 
-Navigate to [http://localhost:3000](http://localhost:3000) to see the application running.
+### 生产构建
 
-## Usage
+构建优化后的生产版本：
 
-### Development Server
-
-Start the development server with hot-reload:
-
-```sh
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`.
-
-### Production Build
-
-Build the application for production:
-
-```sh
+```bash
+# 构建应用
 npm run build
-```
 
-Start the production server:
-
-```sh
+# 启动生产服务器
 npm start
 ```
 
-### Linting
+### 代码检查
 
-Run ESLint to check code quality:
+运行 ESLint 检查代码质量：
 
-```sh
+```bash
 npm run lint
 ```
 
-## Architecture
+## 核心功能
 
-### Project Structure
+### 智能并行搜索
+
+KVideo 采用先进的并行搜索架构，同时查询多个视频源：
+
+- **并发请求** - 15 个视频源同时搜索，无需等待
+- **流式传输** - 结果实时流式返回，即查即得
+- **缓存机制** - 搜索结果本地缓存，秒开历史查询
+- **相关性排序** - 智能匹配算法，最相关内容优先展示
+
+```typescript
+// 核心搜索 Hook - useParallelSearch
+const { results, loading, performSearch } = useParallelSearch(
+  saveToCache,
+  onUrlUpdate
+);
+
+performSearch('电影名称'); // 触发并行搜索
+```
+
+### 实时流式传输
+
+搜索过程采用服务端推送（SSE）技术：
+
+1. **搜索阶段** - 显示已完成源数量 / 总源数量
+2. **检测阶段** - 显示已验证视频数 / 总视频数
+3. **结果推送** - 每验证通过一批视频立即推送
+
+```typescript
+// API Route - /api/search-stream
+// 返回格式：
+// data: {"type": "progress", "stage": "searching", "checkedSources": 5}
+// data: {"type": "videos", "videos": [...], "checkedVideos": 10}
+// data: {"type": "complete", "totalResults": 120}
+```
+
+### 源可用性检测
+
+搜索时自动验证视频源可用性，过滤无效链接：
+
+- **URL 格式验证** - 检查链接是否符合 M3U8/MP4 规范
+- **HEAD 请求预检** - 验证资源是否存在（状态码 200/206）
+- **内容大小检测** - 确保内容大小 > 1KB，排除空文件
+- **并发控制** - 同时检测 8 个链接，平衡速度与服务器压力
+
+```typescript
+// 源检测核心函数
+const availableVideos = await checkMultipleVideos(allVideos, 8);
+// 仅返回可播放的视频
+```
+
+### 观看历史管理
+
+基于 Zustand 的持久化历史记录：
+
+- **自动记录** - 播放时自动保存到 localStorage
+- **进度追踪** - 记录每集观看进度，支持断点续播
+- **侧边栏展示** - 快速访问最近观看的视频
+- **一键清除** - 支持批量或单个删除历史
+
+```typescript
+// 历史存储 Store
+const { addToHistory, clearHistory } = useHistoryStore();
+
+addToHistory(videoId, title, playUrl, source, episodeName, currentTime);
+```
+
+### 自适应视频播放器
+
+基于 Artplayer 构建的高级播放器：
+
+- **HLS 流支持** - 集成 hls.js，无缝播放 M3U8 格式
+- **自动源切换** - 播放失败时自动尝试备用源
+- **倍速播放** - 0.5x - 2x 速度调节
+- **画质选择** - 自动识别多码率流
+- **全屏控制** - 支持网页全屏和系统全屏
+- **快捷键支持** - 空格暂停、方向键快进/快退
+
+```typescript
+// 播放器核心 Hook - useVideoPlayer
+const { videoData, playUrl, currentEpisode } = useVideoPlayer(
+  videoId,
+  source,
+  episodeParam
+);
+```
+
+## 项目架构
 
 ```
 kvideo/
-├── app/                      # Next.js App Router
-│   ├── api/                  # API routes
-│   │   ├── detail/          # Video detail endpoint
-│   │   ├── search/          # Search endpoint
-│   │   └── search-stream/   # Streaming search endpoint
-│   ├── player/              # Video player page
-│   ├── layout.tsx           # Root layout
-│   ├── page.tsx             # Home page
-│   └── globals.css          # Global styles
-├── components/              # React components
-│   ├── ui/                  # UI component library
-│   │   ├── Badge.tsx
-│   │   ├── Button.tsx
-│   │   ├── Card.tsx
-│   │   ├── Icon.tsx
-│   │   └── Input.tsx
-│   ├── SearchLoadingAnimation.tsx
-│   ├── ThemeProvider.tsx
-│   └── ThemeSwitcher.tsx
-├── lib/                     # Core utilities
-│   ├── api/                 # API client
-│   │   ├── client.ts
-│   │   └── video-sources.ts
-│   ├── store/               # State management
-│   │   ├── history-store.ts
-│   │   └── player-store.ts
-│   ├── types/               # TypeScript definitions
+├── app/                        # Next.js App Router
+│   ├── api/                    # API Routes
+│   │   ├── search/             # 标准搜索 API
+│   │   ├── search-stream/      # 流式搜索 API
+│   │   ├── search-parallel/    # 并行搜索 API
+│   │   ├── detail/             # 视频详情 API
+│   │   └── hot/                # 热门推荐 API
+│   ├── player/                 # 播放器页面
+│   ├── history/                # 历史记录页面
+│   ├── layout.tsx              # 根布局组件
+│   ├── page.tsx                # 首页/搜索页
+│   └── globals.css             # Liquid Glass 全局样式
+│
+├── components/                 # React 组件
+│   ├── search/                 # 搜索相关组件
+│   │   ├── SearchForm.tsx      # 搜索表单
+│   │   ├── VideoGrid.tsx       # 视频网格布局
+│   │   ├── TypeBadges.tsx      # 类型筛选徽章
+│   │   └── ResultsHeader.tsx   # 搜索结果头部
+│   ├── player/                 # 播放器组件
+│   │   ├── VideoPlayer.tsx     # 主播放器
+│   │   ├── EpisodeList.tsx     # 剧集列表
+│   │   └── VideoMetadata.tsx   # 视频元数据
+│   ├── history/                # 历史记录组件
+│   │   └── WatchHistorySidebar.tsx
+│   ├── home/                   # 首页组件
+│   │   └── PopularFeatures.tsx
+│   ├── ThemeProvider.tsx       # 主题提供器
+│   └── ThemeSwitcher.tsx       # 主题切换器
+│
+├── lib/                        # 核心逻辑库
+│   ├── api/                    # API 客户端
+│   │   ├── client.ts           # HTTP 请求封装
+│   │   └── video-sources.ts    # 视频源配置
+│   ├── hooks/                  # 自定义 React Hooks
+│   │   ├── useParallelSearch.ts    # 并行搜索 Hook
+│   │   ├── useSearchStream.ts      # 流式搜索 Hook
+│   │   ├── useVideoPlayer.ts       # 播放器 Hook
+│   │   ├── useTypeBadges.ts        # 类型筛选 Hook
+│   │   └── useSearchCache.ts       # 搜索缓存 Hook
+│   ├── store/                  # Zustand 状态管理
+│   │   ├── history-store.ts    # 历史记录 Store
+│   │   ├── player-store.ts     # 播放器 Store
+│   │   └── search-history-store.ts  # 搜索历史 Store
+│   ├── types/                  # TypeScript 类型定义
 │   │   └── index.ts
-│   └── utils/               # Utility functions
-│       ├── episode-manager.ts
-│       ├── error-handler.ts
-│       ├── m3u8-filter.ts
-│       ├── progress-tracker.ts
-│       ├── search.ts
-│       ├── source-checker.ts
-│       ├── source-switcher.ts
-│       └── url-validator.ts
-├── public/                  # Static assets
-├── next.config.ts           # Next.js configuration
-├── tailwind.config.ts       # Tailwind configuration
-├── tsconfig.json           # TypeScript configuration
-└── package.json            # Project dependencies
+│   └── utils/                  # 工具函数
+│       ├── source-checker.ts   # 源可用性检测
+│       ├── url-validator.ts    # URL 验证
+│       ├── m3u8-filter.ts      # M3U8 过滤
+│       ├── episode-manager.ts  # 剧集管理
+│       └── progress-tracker.ts # 进度追踪
+│
+├── public/                     # 静态资源
+├── next.config.ts              # Next.js 配置
+├── tailwind.config.ts          # Tailwind 配置
+├── tsconfig.json               # TypeScript 配置
+└── package.json                # 项目依赖
 ```
 
-### Core Components
+### 核心模块说明
 
-#### **Search System**
-- **Multi-source Search**: Parallel queries across multiple video APIs
-- **Result Caching**: 10-minute cache to reduce API calls
-- **Progress Tracking**: Real-time feedback on search and validation progress
+#### API Routes（/app/api）
 
-#### **Video Player**
-- **Episode Management**: Sequential episode navigation with auto-play
-- **Progress Tracking**: Automatic position saving and restoration
-- **Source Switching**: Seamless failover between video sources
-- **HLS Support**: Adaptive bitrate streaming
+- **search/** - 标准搜索，返回完整结果
+- **search-stream/** - SSE 流式搜索，实时推送
+- **search-parallel/** - 并行搜索，最快响应
+- **detail/** - 获取视频详细信息和播放链接
 
-#### **State Management**
-- **Player Store**: Manages playback state, episodes, and settings
-- **History Store**: Tracks viewing history with smart deduplication
+#### Hooks（/lib/hooks）
 
-#### **API Layer**
-- **Client Abstraction**: Unified interface for multiple video sources
-- **Error Handling**: Graceful degradation and retry logic
-- **Source Validation**: Health checks and availability monitoring
+- **useParallelSearch** - 并行搜索管理，状态同步
+- **useVideoPlayer** - 播放器状态、剧集切换
+- **useTypeBadges** - 类型筛选逻辑
+- **useSearchCache** - localStorage 缓存管理
 
-## Design System
+#### Utils（/lib/utils）
 
-KVideo implements the **"Liquid Glass"** design system, featuring:
+- **source-checker** - 视频源健康检查
+- **url-validator** - URL 格式验证
+- **m3u8-filter** - M3U8 播放列表过滤
+- **episode-manager** - 剧集解析与排序
 
-### Visual Principles
+## 贡献指南
 
-- **Glass Effect**: Sophisticated backdrop-filter with frosted translucency
-- **Universal Softness**: Consistent rounded corners (`rounded-2xl` and `rounded-full`)
-- **Fluid Animations**: Physics-based transitions with cubic-bezier curves
-- **Depth & Layering**: Clear z-axis hierarchy with natural shadows
-- **Adaptive Controls**: Dynamic elements that respond to user interaction
+我们热烈欢迎社区贡献！无论是修复 Bug、新增功能还是改进文档，您的参与都将使 KVideo 变得更好。
 
-### Component Library
+在开始贡献之前，请仔细阅读我们的 **[贡献指南（CONTRIBUTING.md）](CONTRIBUTING.md)**，其中包含：
 
-The UI component library includes:
-- Avatar & Badge
-- Buttons (primary, secondary, disabled states)
-- Cards with glass morphism
-- Form inputs with validation
-- Modals & Drawers
-- Tabs & Navigation
-- Progress indicators
-- Theme switcher with system detection
+- 📋 完整的贡献流程
+- 💻 代码规范和最佳实践
+- 🎨 Liquid Glass UI 设计规范详解
+- ✅ PR 提交检查清单
+- 🧪 测试指南
 
-### Typography & Accessibility
+### 快速开始
 
-- **Font**: San Francisco (SF) system font stack
-- **Contrast**: WCAG 2.2 compliant (minimum 4.5:1 ratio)
-- **Semantic HTML**: Proper HTML5 structure
-- **ARIA Support**: Comprehensive ARIA attributes
-- **Keyboard Navigation**: Full keyboard operability
+1. **Fork 本仓库并克隆**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/kvideo.git
+   cd kvideo
+   ```
 
-## Contributing
+2. **创建特性分支**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+3. **安装依赖并开发**
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-### How to Contribute
+4. **提交更改（遵循 Conventional Commits）**
+   ```bash
+   git commit -m "feat: 添加某个功能"
+   ```
 
-1. **Fork the Project**
-2. **Create your Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your Changes** (`git commit -m 'Add some AmazingFeature'`)
-4. **Push to the Branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
+5. **推送并创建 Pull Request**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
-### Development Guidelines
+### 核心规范速览
 
-- Follow the existing code style and conventions
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting
+**代码规范：**
+- ✅ TypeScript 严格模式
+- ✅ 单个文件不超过 150 行
+- ✅ 遵循 [Conventional Commits](https://www.conventionalcommits.org/)
 
-## License
+**Liquid Glass UI 设计规范：**
+- ✅ 容器类组件使用 `rounded-2xl`（1.5rem）
+- ✅ 圆形/胶囊组件使用 `rounded-full`
+- ✅ 毛玻璃效果：`backdrop-filter: blur(25px) saturate(180%)`
+- ✅ 流体动画：`cubic-bezier(0.2, 0.8, 0.2, 1)`
+- ✅ 使用 CSS 变量而非硬编码颜色
 
-This project is private and not currently licensed for public use.
+详细规范请查看 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## Contact
+## 许可证
 
-**Hao Yang Kuek** - [@KuekHaoYang](https://github.com/KuekHaoYang)
+本项目采用 **MIT 许可证**。详见 [LICENSE](LICENSE) 文件。
 
-Project Link: [https://github.com/KuekHaoYang/Video](https://github.com/KuekHaoYang/Video)
+这意味着您可以自由地：
+
+- ✅ 商业使用
+- ✅ 修改源代码
+- ✅ 分发副本
+- ✅ 私人使用
+
+唯一的要求是在所有副本或重要部分中包含版权声明和许可证声明。
+
+```
+MIT License - Copyright (c) 2025 Kuek Hao Yang
+```
+
+## 联系方式
+
+- **作者：** Kuek Hao Yang
+- **GitHub：** [@KuekHaoYang](https://github.com/KuekHaoYang)
+- **项目地址：** [https://github.com/KuekHaoYang/kvideo](https://github.com/KuekHaoYang/kvideo)
+
+### 获取帮助
+
+- 🐛 **报告 Bug：** [提交 Issue](https://github.com/KuekHaoYang/kvideo/issues/new)
+- 💡 **功能建议：** [发起讨论](https://github.com/KuekHaoYang/kvideo/discussions)
+- 🤝 **贡献代码：** 查看 [贡献指南](CONTRIBUTING.md)
+- 📖 **文档问题：** 通过 Issues 反馈
 
 ---
 
 <p align="center">
-  <sub>Built with ❤️ using Next.js and the Liquid Glass design system</sub>
+  使用 ❤️ 和 <strong>Liquid Glass</strong> 设计系统打造<br>
+  <em>让每一帧画面都如同触摸玻璃般流畅</em>
 </p>
