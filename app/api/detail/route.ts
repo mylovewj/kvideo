@@ -6,7 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getVideoDetail, getVideoDetailCustom } from '@/lib/api/client';
 import { getSourceById } from '@/lib/api/video-sources';
-import { filterValidEpisodes } from '@/lib/utils/url-validator';
 import type { DetailRequest } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
