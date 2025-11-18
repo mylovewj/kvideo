@@ -97,11 +97,3 @@ export interface ApiDetailResponse {
     vod_play_url?: string;
   }>;
 }
-
-// Detail Request Types
-export interface DetailRequest {
-  id: string | number;
-  source: string;
-  customApi?: string;
-}
-

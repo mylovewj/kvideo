@@ -4,16 +4,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getVideoDetail, getVideoDetailCustom } from '@/lib/api/client';
+import { getVideoDetail } from '@/lib/api/client';
 import { getSourceById } from '@/lib/api/video-sources';
-import type { DetailRequest } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get('id');
     const source = searchParams.get('source');
-    const customApi = searchParams.get('customApi');
 
     // Validate input
     if (!id) {
@@ -21,26 +19,6 @@ export async function GET(request: NextRequest) {
         { error: 'Missing video ID parameter' },
         { status: 400 }
       );
-    }
-
-    // Handle custom API case
-    if (customApi) {
-      try {
-        const videoDetail = await getVideoDetailCustom(id, customApi);
-        
-        return NextResponse.json({
-          success: true,
-          data: videoDetail,
-        });
-      } catch (error) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to fetch video detail',
-          },
-          { status: 500 }
-        );
-      }
     }
 
     // Validate source
@@ -99,8 +77,8 @@ export async function GET(request: NextRequest) {
 // Support POST method for complex requests
 export async function POST(request: NextRequest) {
   try {
-    const body: DetailRequest = await request.json();
-    const { id, source, customApi } = body;
+    const body = await request.json();
+    const { id, source } = body;
 
     // Validate input
     if (!id) {
@@ -108,26 +86,6 @@ export async function POST(request: NextRequest) {
         { error: 'Missing video ID parameter' },
         { status: 400 }
       );
-    }
-
-    // Handle custom API case
-    if (customApi) {
-      try {
-        const videoDetail = await getVideoDetailCustom(id, customApi);
-        
-        return NextResponse.json({
-          success: true,
-          data: videoDetail,
-        });
-      } catch (error) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to fetch video detail',
-          },
-          { status: 500 }
-        );
-      }
     }
 
     // Validate source

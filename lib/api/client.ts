@@ -250,20 +250,4 @@ export async function getVideoDetail(
   }
 }
 
-/**
- * Get video detail with custom API URL
- */
-export async function getVideoDetailCustom(
-  id: string | number,
-  customApiUrl: string
-): Promise<VideoDetail> {
-  const customSource: VideoSource = {
-    id: 'custom',
-    name: 'Custom API',
-    baseUrl: customApiUrl,
-    searchPath: '',
-    detailPath: '',
-  };
 
-  return getVideoDetail(id, customSource);
-}
