@@ -100,19 +100,33 @@ export function MobileVideoPlayer({
     onSkipContinueRight: () => skipVideo(10, 'right'),
     isSkipModeActive: showSkipIndicator,
     onSingleTap: () => {
-      // Single tap toggles play/pause immediately
-      togglePlay();
-      // Show controls
-      setShowControls(true);
-      // If playing, set timeout to hide controls
-      // If paused, keep controls visible
-      if (controlsTimeoutRef.current) {
-        clearTimeout(controlsTimeoutRef.current);
-      }
-      if (isPlaying) {
-        controlsTimeoutRef.current = setTimeout(() => {
-          setShowControls(false);
-        }, 3000);
+      // Single tap behavior:
+      // - If controls are hidden, show them (don't toggle play/pause)
+      // - If controls are visible, toggle play/pause
+      if (!showControls) {
+        // Just show controls, don't toggle play state
+        setShowControls(true);
+        // Set timeout to hide controls if playing
+        if (controlsTimeoutRef.current) {
+          clearTimeout(controlsTimeoutRef.current);
+        }
+        if (isPlaying) {
+          controlsTimeoutRef.current = setTimeout(() => {
+            setShowControls(false);
+          }, 3000);
+        }
+      } else {
+        // Controls are visible, now toggle play/pause
+        togglePlay();
+        // Reset hide timer
+        if (controlsTimeoutRef.current) {
+          clearTimeout(controlsTimeoutRef.current);
+        }
+        if (isPlaying) {
+          controlsTimeoutRef.current = setTimeout(() => {
+            setShowControls(false);
+          }, 3000);
+        }
       }
     },
   });
