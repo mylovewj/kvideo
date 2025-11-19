@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { getSourceName, SOURCE_IDS } from '@/lib/utils/source-names';
 import { calculateRelevanceScore } from '@/lib/utils/search';
+import { sortVideos } from '@/lib/utils/sort';
+import type { SortOption } from '@/lib/store/settings-store';
 
 interface Video {
   vod_id: string;
@@ -28,9 +30,10 @@ export interface ParallelSearchResult {
   completedSources: number;
   totalSources: number;
   totalVideosFound: number;
-  performSearch: (query: string) => Promise<void>;
+  performSearch: (query: string, sortBy?: SortOption) => Promise<void>;
   resetSearch: () => void;
   loadCachedResults: (results: Video[], sources: any[]) => void;
+  applySorting: (sortBy: SortOption) => void;
 }
 
 export function useParallelSearch(
@@ -50,7 +53,7 @@ export function useParallelSearch(
   /**
    * Perform parallel search with streaming results
    */
-  const performSearch = useCallback(async (searchQuery: string) => {
+  const performSearch = useCallback(async (searchQuery: string, sortBy: SortOption = 'default') => {
     if (!searchQuery.trim()) return;
 
     // Abort any ongoing search
@@ -183,13 +186,17 @@ export function useParallelSearch(
 
               console.log('[useParallelSearch] Available sources:', sources);
 
-              // Cache results - wait a bit for current results to be in state
-              setTimeout(() => {
-                setResults((currentResults) => {
-                  onCacheUpdate(searchQuery, currentResults, sources);
-                  return currentResults;
-                });
-              }, 100);
+              // Apply final sorting after all results are received
+              setResults((currentResults) => {
+                const sorted = sortVideos(currentResults, sortBy);
+                
+                // Cache results
+                setTimeout(() => {
+                  onCacheUpdate(searchQuery, sorted, sources);
+                }, 100);
+                
+                return sorted;
+              });
             } 
             else if (data.type === 'error') {
               console.error('Search error:', data.message);
@@ -236,6 +243,13 @@ export function useParallelSearch(
     setTotalVideosFound(cachedResults.length);
   }, []);
 
+  /**
+   * Apply sorting to current results
+   */
+  const applySorting = useCallback((sortBy: SortOption) => {
+    setResults((currentResults) => sortVideos(currentResults, sortBy));
+  }, []);
+
   return {
     loading,
     results,
@@ -246,5 +260,6 @@ export function useParallelSearch(
     performSearch,
     resetSearch,
     loadCachedResults,
+    applySorting,
   };
 }

@@ -57,7 +57,7 @@ const VideoCard = memo(({
         prefetch={false}
       >
         <Card
-          className="p-0 overflow-hidden group cursor-pointer flex flex-col h-full bg-[var(--bg-color)]/50 backdrop-blur-none saturate-100 shadow-sm border-[var(--glass-border)]"
+          className="p-0 overflow-hidden group cursor-pointer flex flex-col h-full bg-[var(--bg-color)]/50 backdrop-blur-none saturate-100 shadow-sm border-[var(--glass-border)] hover:shadow-lg transition-shadow"
           hover={false} // Disable default hover scale to improve performance
           style={{ 
             willChange: 'transform',
@@ -117,33 +117,35 @@ const VideoCard = memo(({
             </div>
           )}
           
-          {/* Overlay - Show on hover (desktop) or when active (mobile) - Simplified for performance */}
-          {isActive && (
-            <div 
-              className="absolute inset-0 bg-black/60" // Removed gradient for solid semi-transparent overlay
-              style={{ 
-                willChange: 'opacity',
-              }}
-            >
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                {/* Mobile indicator when active */}
+          {/* Overlay - Show on hover (desktop) or when active (mobile) */}
+          <div 
+            className={`absolute inset-0 bg-black/60 transition-opacity duration-300 ${
+              isActive ? 'opacity-100 lg:opacity-0 lg:group-hover:opacity-100' : 'opacity-0 lg:group-hover:opacity-100'
+            }`}
+            style={{ 
+              willChange: 'opacity',
+            }}
+          >
+            <div className="absolute bottom-0 left-0 right-0 p-3">
+              {/* Mobile indicator when active */}
+              {isActive && (
                 <div className="lg:hidden text-white/90 text-xs mb-2 font-medium">
                   再次点击播放 →
                 </div>
-                {video.type_name && (
-                  <Badge variant="secondary" className="text-xs mb-2">
-                    {video.type_name}
-                  </Badge>
-                )}
-                {video.vod_year && (
-                  <div className="flex items-center gap-1 text-white/80 text-xs">
-                    <Icons.Calendar size={12} />
-                    <span>{video.vod_year}</span>
-                  </div>
-                )}
-              </div>
+              )}
+              {video.type_name && (
+                <Badge variant="secondary" className="text-xs mb-2">
+                  {video.type_name}
+                </Badge>
+              )}
+              {video.vod_year && (
+                <div className="flex items-center gap-1 text-white/80 text-xs">
+                  <Icons.Calendar size={12} />
+                  <span>{video.vod_year}</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Info - Fixed height section */}

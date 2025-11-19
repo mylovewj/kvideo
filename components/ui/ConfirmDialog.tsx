@@ -13,6 +13,7 @@ interface ConfirmDialogProps {
   confirmText?: string;
   cancelText?: string;
   variant?: 'danger' | 'warning' | 'info';
+  dangerous?: boolean;
 }
 
 export function ConfirmDialog({
@@ -24,6 +25,7 @@ export function ConfirmDialog({
   confirmText = '确认',
   cancelText = '取消',
   variant = 'warning',
+  dangerous = false,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +68,9 @@ export function ConfirmDialog({
     warning: 'bg-[var(--accent-color)] hover:brightness-110',
     info: 'bg-blue-500 hover:bg-blue-600',
   };
+  
+  // Use dangerous prop to override variant
+  const finalVariant = dangerous ? 'danger' : variant;
 
   return (
     <>
@@ -114,7 +119,7 @@ export function ConfirmDialog({
             </Button>
             <Button
               onClick={onConfirm}
-              className={`min-w-[100px] ${variantStyles[variant]}`}
+              className={`min-w-[100px] ${variantStyles[finalVariant]}`}
             >
               {confirmText}
             </Button>

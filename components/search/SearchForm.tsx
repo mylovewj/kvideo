@@ -55,7 +55,7 @@ export function SearchForm({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (query.trim() && !isLoading) {
+    if (query.trim()) {
       // Add to search history before searching
       addSearch(query.trim());
       onSearch(query);
@@ -118,33 +118,36 @@ export function SearchForm({
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
           placeholder="搜索电影、电视剧、综艺..."
-          className="text-base sm:text-lg pr-24 md:pr-32 truncate"
+          className="text-base sm:text-lg pr-28 sm:pr-36 md:pr-44 truncate"
           aria-label="搜索视频内容"
           aria-expanded={isDropdownOpen}
           aria-controls="search-history-dropdown"
           aria-autocomplete="list"
         />
-        {query && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-20 md:right-32 top-1/2 -translate-y-1/2 p-3 md:p-2 text-[var(--text-color-secondary)] hover:text-[var(--text-color)] transition-colors touch-manipulation"
-            aria-label="清除搜索"
+        
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {query && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="p-2 text-[var(--text-color)] opacity-70 hover:opacity-100 transition-opacity touch-manipulation"
+              aria-label="清除搜索"
+            >
+              <Icons.X size={20} />
+            </button>
+          )}
+          <Button
+            type="submit"
+            disabled={!query.trim()}
+            variant="primary"
+            className="px-3 sm:px-4 md:px-6"
           >
-            <Icons.X size={20} />
-          </button>
-        )}
-        <Button
-          type="submit"
-          disabled={!query.trim()}
-          variant="primary"
-          className="absolute right-2 top-1/2 -translate-y-1/2 px-3 sm:px-4 md:px-8"
-        >
-          <span className="flex items-center gap-2">
-            <Icons.Search size={20} />
-            <span className="hidden sm:inline">搜索</span>
-          </span>
-        </Button>
+            <span className="flex items-center gap-2">
+              <Icons.Search size={20} />
+              <span className="hidden sm:inline">搜索</span>
+            </span>
+          </Button>
+        </div>
 
         {/* Search History Dropdown */}
         <SearchHistoryDropdown
