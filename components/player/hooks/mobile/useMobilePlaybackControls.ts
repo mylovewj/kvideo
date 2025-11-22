@@ -81,6 +81,17 @@ export function useMobilePlaybackControls({
         });
     }, [videoRef, setDuration, setIsLoading, initialTime]);
 
+    // Handle late initialization of initialTime (e.g. from async storage hydration)
+    useEffect(() => {
+        if (initialTime > 0 && videoRef.current) {
+            // Only seek if we haven't progressed far (e.g. still near start)
+            // This prevents jumping if the user has already started watching
+            if (videoRef.current.currentTime < 2) {
+                videoRef.current.currentTime = initialTime;
+            }
+        }
+    }, [initialTime, videoRef]);
+
     const handleVideoError = useCallback(() => {
         setIsLoading(false);
         if (onError) {

@@ -17,18 +17,30 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoPlayerProps) {
   const [videoError, setVideoError] = useState<string>('');
+  // Use reactive hook to subscribe to history updates
+  // This ensures the component re-renders when history is hydrated from localStorage
+  const viewingHistory = useHistoryStore(state => state.viewingHistory);
   const searchParams = useSearchParams();
   const { addToHistory } = useHistoryStore();
-  
+
   // Get video metadata from URL params
   const source = searchParams.get('source') || '';
   const title = searchParams.get('title') || '未知视频';
-  
+
   // Get saved progress for this video
   const getSavedProgress = () => {
     if (!videoId) return 0;
-    const savedTime = localStorage.getItem(`video_progress_${videoId}_${currentEpisode}`);
-    return savedTime ? parseFloat(savedTime) : 0;
+
+    // Directly check HistoryStore for progress
+    // This is the single source of truth for playback resumption
+    const historyItem = viewingHistory.find(item =>
+      // Loose match for videoId (string vs number)
+      item.videoId.toString() === videoId?.toString() &&
+      item.source === source &&
+      item.episodeIndex === currentEpisode
+    );
+
+    return historyItem ? historyItem.playbackPosition : 0;
   };
 
   // Handle time updates and save progress
@@ -74,7 +86,7 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
     <Card hover={false} className="p-0 overflow-hidden">
       {videoError ? (
         <div className="aspect-video bg-black rounded-[var(--radius-2xl)] flex items-center justify-center">
-          <div 
+          <div
             className="text-center text-white max-w-md px-4"
             role="alert"
             aria-live="assertive"
@@ -84,7 +96,7 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
             <p className="text-lg font-semibold mb-2">播放失败</p>
             <p className="text-sm text-gray-300 mb-4">{videoError}</p>
             <div className="flex gap-2 justify-center flex-wrap">
-              <Button 
+              <Button
                 variant="primary"
                 onClick={() => setVideoError('')}
                 className="flex items-center gap-2"
@@ -92,7 +104,7 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
                 <Icons.RefreshCw size={16} />
                 <span>重试</span>
               </Button>
-              <Button 
+              <Button
                 variant="secondary"
                 onClick={onBack}
                 className="flex items-center gap-2"
