@@ -13,14 +13,55 @@ export async function GET(request: NextRequest) {
         // Beijing IP address to simulate request from China
         const chinaIP = '202.108.22.5';
 
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'X-Forwarded-For': chinaIP,
-                'Client-IP': chinaIP,
-                'Referer': new URL(url).origin,
-            },
-        });
+        // Retry logic for unstable video sources
+        const MAX_RETRIES = 5;
+        let lastError = null;
+        let response = null;
+
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'X-Forwarded-For': chinaIP,
+                        'Client-IP': chinaIP,
+                        'Referer': new URL(url).origin,
+                    },
+                });
+
+                // If successful (200-299), break out of retry loop
+                if (response.ok) {
+                    console.log(`✓ Proxy success on attempt ${attempt}: ${url}`);
+                    break;
+                }
+
+                // If 503, retry after a short delay
+                if (response.status === 503 && attempt < MAX_RETRIES) {
+                    console.warn(`⚠ Got 503 on attempt ${attempt}, retrying... (${url})`);
+                    lastError = `503 on attempt ${attempt}`;
+                    // Wait 500ms before retry
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    continue;
+                }
+
+                // For other errors (403, 404, etc), don't retry
+                console.warn(`✗ Got ${response.status} on attempt ${attempt}: ${url}`);
+                break;
+
+            } catch (fetchError) {
+                lastError = fetchError;
+                if (attempt < MAX_RETRIES) {
+                    console.warn(`⚠ Fetch error on attempt ${attempt}, retrying...`, fetchError);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } else {
+                    throw fetchError;
+                }
+            }
+        }
+
+        if (!response || !response.ok) {
+            throw new Error(`Failed after ${MAX_RETRIES} attempts: ${response?.status || lastError}`);
+        }
 
         const contentType = response.headers.get('Content-Type');
 
@@ -72,7 +113,20 @@ export async function GET(request: NextRequest) {
         return newResponse;
     } catch (error) {
         console.error('Proxy error:', error);
-        return new NextResponse('Proxy failed', { status: 500 });
+        return new NextResponse(
+            JSON.stringify({
+                error: 'Proxy request failed',
+                message: error instanceof Error ? error.message : 'Unknown error',
+                url: url
+            }),
+            {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                }
+            }
+        );
     }
 }
 
