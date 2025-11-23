@@ -34,11 +34,14 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
     if (!videoId) return 0;
 
     // Directly check HistoryStore for progress
-    // This is the single source of truth for playback resumption
+    // We prioritize a strict match (including source), but fall back to any match for this video/episode
+    // This fixes issues where the source parameter might be missing or different
     const historyItem = viewingHistory.find(item =>
-      // Loose match for videoId (string vs number)
       item.videoId.toString() === videoId?.toString() &&
-      item.source === source &&
+      item.episodeIndex === currentEpisode &&
+      (source ? item.source === source : true)
+    ) || viewingHistory.find(item =>
+      item.videoId.toString() === videoId?.toString() &&
       item.episodeIndex === currentEpisode
     );
 

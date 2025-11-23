@@ -1,4 +1,6 @@
 import { useCallback, useEffect } from 'react';
+import { formatTime } from '@/lib/utils/format-utils';
+import { usePlaybackPolling } from '../usePlaybackPolling';
 
 interface UsePlaybackControlsProps {
     videoRef: React.RefObject<HTMLVideoElement | null>;
@@ -112,13 +114,14 @@ export function usePlaybackControls({
         }
     }, [videoRef, setPlaybackRate, setShowSpeedMenu, speedMenuTimeoutRef]);
 
-    const formatTime = useCallback((seconds: number) => {
-        if (isNaN(seconds)) return '0:00:00';
-        const hours = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }, []);
+    // Polling fallback for AirPlay and throttled events
+    usePlaybackPolling({
+        isPlaying,
+        videoRef,
+        isDraggingProgressRef,
+        setCurrentTime,
+        setDuration
+    });
 
     return {
         togglePlay,
