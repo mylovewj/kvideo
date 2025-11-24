@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { formatTime } from '@/lib/utils/format-utils';
 import { usePlaybackPolling } from '../usePlaybackPolling';
+import { useMobileTogglePlay } from './useMobileTogglePlay';
 
 interface UseMobilePlaybackProps {
     videoRef: React.RefObject<HTMLVideoElement>;
@@ -39,25 +40,14 @@ export function useMobilePlaybackControls({
     isDraggingProgressRef,
     isTogglingRef
 }: UseMobilePlaybackProps) {
-    const togglePlay = useCallback(async () => {
-        if (!videoRef.current || isTogglingRef.current) return;
-        isTogglingRef.current = true;
-
-        try {
-            if (isPlaying) {
-                videoRef.current.pause();
-            } else {
-                setShowMoreMenu(false);
-                setShowVolumeMenu(false);
-                setShowSpeedMenu(false);
-                await videoRef.current.play();
-            }
-        } catch (error) {
-            console.warn('Play/pause error:', error);
-        } finally {
-            isTogglingRef.current = false;
-        }
-    }, [isPlaying, videoRef, isTogglingRef, setShowMoreMenu, setShowVolumeMenu, setShowSpeedMenu]);
+    const togglePlay = useMobileTogglePlay({
+        videoRef,
+        isPlaying,
+        isTogglingRef,
+        setShowMoreMenu,
+        setShowVolumeMenu,
+        setShowSpeedMenu
+    });
 
     const handlePlay = useCallback(() => setIsPlaying(true), [setIsPlaying]);
     const handlePause = useCallback(() => setIsPlaying(false), [setIsPlaying]);

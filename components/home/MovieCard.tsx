@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Icons } from '@/components/ui/Icon';
+import { getOptimizedImageUrl } from '@/lib/utils/image-utils';
 
 interface DoubanMovie {
   id: string;
@@ -39,7 +40,7 @@ export const MovieCard = memo(function MovieCard({ movie, onMovieClick }: MovieC
       <Card hover className="overflow-hidden p-0 h-full" blur={false}>
         <div className="relative aspect-[2/3] overflow-hidden bg-[var(--glass-bg)] rounded-[var(--radius-2xl)]">
           <Image
-            src={movie.cover}
+            src={getOptimizedImageUrl(movie.cover, 400)}
             alt={movie.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105 rounded-[var(--radius-2xl)]"
