@@ -12,7 +12,10 @@ export interface Segment {
 export async function parseHLSManifest(src: string): Promise<Segment[]> {
     const response = await fetch(src);
     if (!response.ok) {
-        throw new Error(`Failed to fetch manifest: ${response.status}`);
+        const errorMsg = response.status === 503
+            ? `Network unavailable (Service Worker offline): ${src}`
+            : `Failed to fetch manifest (${response.status}): ${src}`;
+        throw new Error(errorMsg);
     }
     const manifestText = await response.text();
 

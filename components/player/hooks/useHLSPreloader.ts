@@ -34,7 +34,13 @@ export function useHLSPreloader({ src, currentTime }: UseHLSPreloaderProps) {
                 const totalDuration = segments[segments.length - 1]?.startTime + segments[segments.length - 1]?.duration || 0;
                 console.log(`[Preloader] Parsed ${segments.length} segments. Total duration: ${totalDuration.toFixed(2)}s`);
             } catch (error) {
-                console.error('[Preloader] Error fetching manifest:', error);
+                // Use warn for expected network errors, error for unexpected issues
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                if (errorMessage.includes('503') || errorMessage.includes('Network unavailable')) {
+                    console.warn('[Preloader] Network unavailable, skipping preload:', errorMessage);
+                } else {
+                    console.error('[Preloader] Error fetching manifest:', error);
+                }
             }
         };
 

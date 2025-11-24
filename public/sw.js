@@ -35,18 +35,25 @@ self.addEventListener('fetch', (event) => {
                     const fetchPromise = fetch(event.request).then((networkResponse) => {
                         // Check if network response is valid
                         if (!networkResponse || networkResponse.status !== 200) {
+                            // Return the response as-is so client can see the error status
+                            if (networkResponse) return networkResponse;
+                            // If no response at all, throw to trigger catch block
                             throw new Error('Network response was not ok');
                         }
                         cache.put(event.request, networkResponse.clone());
                         return networkResponse;
                     }).catch((err) => {
+                        console.error('[SW] Fetch failed for manifest:', err);
                         // If network fails, return cached response if available
                         if (cachedResponse) {
                             return cachedResponse;
                         }
-                        // If no cache and network fails, throw error so browser handles it
-                        // This allows the client (VideoPlayer) to catch the error and retry with proxy
-                        throw err;
+                        // If no cache, return a proper error Response instead of throwing
+                        // This prevents "Load failed" and lets the client handle it
+                        return new Response('Network error', {
+                            status: 503,
+                            statusText: 'Service Worker: Network Unavailable'
+                        });
                     });
 
                     // Return cache immediately if available, otherwise wait for network
@@ -78,8 +85,12 @@ self.addEventListener('fetch', (event) => {
                         return response;
                     }).catch((error) => {
                         console.error('[SW] Failed to fetch segment:', error);
-                        // Throw error to let browser handle it
-                        throw error;
+                        // Return a proper error Response instead of throwing
+                        // This prevents "Load failed" and lets the client handle it
+                        return new Response('Network error', {
+                            status: 503,
+                            statusText: 'Service Worker: Network Unavailable'
+                        });
                     });
                 });
             })
