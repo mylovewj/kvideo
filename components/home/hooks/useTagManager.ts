@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 
 const DEFAULT_TAGS = [
     { id: 'popular', label: '热门', value: '热门' },
@@ -69,6 +71,16 @@ export function useTagManager() {
         setShowTagManager(false);
     };
 
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const oldIndex = tags.findIndex((tag) => tag.id === active.id);
+            const newIndex = tags.findIndex((tag) => tag.id === over.id);
+            saveTags(arrayMove(tags, oldIndex, newIndex));
+        }
+    };
+
     return {
         tags,
         selectedTag,
@@ -80,5 +92,6 @@ export function useTagManager() {
         handleAddTag,
         handleDeleteTag,
         handleRestoreDefaults,
+        handleDragEnd,
     };
 }

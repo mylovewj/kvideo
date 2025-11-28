@@ -1,11 +1,25 @@
-/**
- * TagManager - Tag management UI component
- * Handles custom tag creation, deletion, and filtering
- */
-
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { Icons } from '@/components/ui/Icon';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Tag {
   id: string;
@@ -24,6 +38,73 @@ interface TagManagerProps {
   onRestoreDefaults: () => void;
   onNewTagInputChange: (value: string) => void;
   onAddTag: () => void;
+  onDragEnd: (event: DragEndEvent) => void;
+}
+
+function SortableTag({
+  tag,
+  selectedTag,
+  showTagManager,
+  onTagSelect,
+  onTagDelete,
+}: {
+  tag: Tag;
+  selectedTag: string;
+  showTagManager: boolean;
+  onTagSelect: (id: string) => void;
+  onTagDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: tag.id, disabled: !showTagManager });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.3 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="relative flex-shrink-0"
+    >
+      <div className={`${showTagManager && !isDragging ? 'animate-jiggle' : ''}`}>
+        <button
+          onClick={() => !showTagManager && onTagSelect(tag.id)}
+          className={`
+            px-6 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-[var(--radius-full)] cursor-pointer select-none
+            ${selectedTag === tag.id
+              ? 'bg-[var(--accent-color)] text-white shadow-md scale-105'
+              : 'bg-[var(--glass-bg)] backdrop-blur-xl text-[var(--text-color)] border border-[var(--glass-border)] hover:border-[var(--accent-color)] hover:scale-105'
+            }
+          `}
+        >
+          {tag.label}
+        </button>
+        {showTagManager && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onTagDelete(tag.id);
+            }}
+            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors rounded-[var(--radius-full)] cursor-pointer z-20 shadow-sm"
+          >
+            <Icons.X size={14} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function TagManager({
@@ -37,8 +118,46 @@ export function TagManager({
   onRestoreDefaults,
   onNewTagInputChange,
   onAddTag,
+  onDragEnd,
 }: TagManagerProps) {
-  const isCustomTag = (tagId: string) => tagId.startsWith('custom_');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const prevTagsLength = useRef(tags.length);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Auto-scroll to end when new tag is added
+  useEffect(() => {
+    if (tags.length > prevTagsLength.current) {
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({
+          left: scrollContainerRef.current.scrollWidth,
+          behavior: 'smooth',
+        });
+      }
+    }
+    prevTagsLength.current = tags.length;
+  }, [tags.length]);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
+    onDragEnd(event);
+  };
+
+  const activeTag = tags.find((t) => t.id === activeId);
 
   return (
     <>
@@ -83,35 +202,43 @@ export function TagManager({
       )}
 
       {/* Tag Filter */}
-      <div className="mb-8 flex items-center gap-3 overflow-x-auto pb-3 pt-2 px-1 scrollbar-hide">
-        {tags.map((tag) => (
-          <div key={tag.id} className="relative flex-shrink-0">
-            <button
-              onClick={() => onTagSelect(tag.id)}
-              className={`
-                px-6 py-2.5 text-sm font-semibold transition-all whitespace-nowrap rounded-[var(--radius-full)] cursor-pointer
-                ${selectedTag === tag.id
-                  ? 'bg-[var(--accent-color)] text-white shadow-md scale-105'
-                  : 'bg-[var(--glass-bg)] backdrop-blur-xl text-[var(--text-color)] border border-[var(--glass-border)] hover:border-[var(--accent-color)] hover:scale-105'
-                }
-              `}
-            >
-              {tag.label}
-            </button>
-            {showTagManager && isCustomTag(tag.id) && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTagDelete(tag.id);
-                }}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors rounded-[var(--radius-full)] cursor-pointer"
-              >
-                <Icons.X size={14} />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div
+          ref={scrollContainerRef}
+          className="mb-8 flex items-center gap-3 overflow-x-auto pb-3 pt-2 px-1 scrollbar-hide"
+        >
+          <SortableContext
+            items={tags.map(t => t.id)}
+            strategy={horizontalListSortingStrategy}
+          >
+            {tags.map((tag) => (
+              <SortableTag
+                key={tag.id}
+                tag={tag}
+                selectedTag={selectedTag}
+                showTagManager={showTagManager}
+                onTagSelect={onTagSelect}
+                onTagDelete={onTagDelete}
+              />
+            ))}
+          </SortableContext>
+        </div>
+
+        <DragOverlay>
+          {activeId && activeTag ? (
+            <div className="relative flex-shrink-0 animate-jiggle">
+              <button className="px-6 py-2.5 text-sm font-semibold whitespace-nowrap rounded-[var(--radius-full)] bg-[var(--accent-color)] text-white shadow-xl scale-110 cursor-grabbing border border-transparent">
+                {activeTag.label}
               </button>
-            )}
-          </div>
-        ))}
-      </div>
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
     </>
   );
 }

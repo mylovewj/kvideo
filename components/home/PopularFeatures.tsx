@@ -26,6 +26,7 @@ export function PopularFeatures({ onSearch }: PopularFeaturesProps) {
     handleAddTag,
     handleDeleteTag,
     handleRestoreDefaults,
+    handleDragEnd,
   } = useTagManager();
 
   const {
@@ -49,12 +50,19 @@ export function PopularFeatures({ onSearch }: PopularFeaturesProps) {
         selectedTag={selectedTag}
         showTagManager={showTagManager}
         newTagInput={newTagInput}
-        onTagSelect={setSelectedTag}
+        onTagSelect={(tagId) => {
+          if (tagId === 'custom_色情' || tags.find(t => t.id === tagId)?.label === '色情') {
+            window.location.href = '/secret';
+            return;
+          }
+          setSelectedTag(tagId);
+        }}
         onTagDelete={handleDeleteTag}
         onToggleManager={() => setShowTagManager(!showTagManager)}
         onRestoreDefaults={handleRestoreDefaults}
         onNewTagInputChange={setNewTagInput}
         onAddTag={handleAddTag}
+        onDragEnd={handleDragEnd}
       />
 
       <MovieGrid
