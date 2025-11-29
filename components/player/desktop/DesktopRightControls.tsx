@@ -10,13 +10,14 @@ interface DesktopRightControlsProps {
     showMoreMenu: boolean;
     isPiPSupported: boolean;
     isAirPlaySupported: boolean;
+    isProxied?: boolean;
     onToggleFullscreen: () => void;
     onTogglePictureInPicture: () => void;
     onShowAirPlayMenu: () => void;
     onToggleSpeedMenu: () => void;
     onToggleMoreMenu: () => void;
     onSpeedChange: (speed: number) => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     onSpeedMenuMouseEnter: () => void;
     onSpeedMenuMouseLeave: () => void;
     onMoreMenuMouseEnter: () => void;
@@ -31,6 +32,7 @@ export function DesktopRightControls({
     showMoreMenu,
     isPiPSupported,
     isAirPlaySupported,
+    isProxied,
     onToggleFullscreen,
     onTogglePictureInPicture,
     onShowAirPlayMenu,
@@ -84,6 +86,7 @@ export function DesktopRightControls({
             {/* More Menu */}
             <DesktopMoreMenu
                 showMoreMenu={showMoreMenu}
+                isProxied={isProxied}
                 onToggleMoreMenu={onToggleMoreMenu}
                 onMouseEnter={onMoreMenuMouseEnter}
                 onMouseLeave={onMoreMenuMouseLeave}

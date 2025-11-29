@@ -97,6 +97,7 @@ export function DesktopVideoPlayer({
       />
 
       <DesktopControlsWrapper
+        src={src}
         state={state}
         logic={logic}
         refs={refs}

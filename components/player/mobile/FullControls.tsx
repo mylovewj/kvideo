@@ -12,6 +12,7 @@ interface FullControlsProps {
     volume: number;
     playbackRate: number;
     isPiPSupported: boolean;
+    isProxied?: boolean;
     currentTime: number;
     duration: number;
     speeds: number[];
@@ -26,7 +27,7 @@ interface FullControlsProps {
     onToggleMute: () => void;
     onVolumeChange: (volume: number) => void;
     onSpeedChange: (speed: number) => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     iconSize: number;
     buttonPadding: string;
     controlsGap: string;
@@ -43,6 +44,7 @@ export function FullControls({
     volume,
     playbackRate,
     isPiPSupported,
+    isProxied,
     currentTime,
     duration,
     speeds,
@@ -94,6 +96,7 @@ export function FullControls({
                 speeds={speeds}
                 onSpeedChange={onSpeedChange}
                 isPiPSupported={isPiPSupported}
+                isProxied={isProxied}
                 onTogglePiP={onTogglePiP}
                 onToggleMoreMenu={onToggleMoreMenu}
                 onToggleVolumeMenu={onToggleVolumeMenu}

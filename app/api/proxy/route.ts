@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { processM3u8Content } from '@/lib/utils/proxy-utils';
 
 export const runtime = 'nodejs';
 
@@ -15,8 +16,6 @@ export async function GET(request: NextRequest) {
     try {
         // Beijing IP address to simulate request from China
         const chinaIP = '202.108.22.5';
-
-        // Retry logic for unstable video sources
         const MAX_RETRIES = 5;
         let lastError = null;
         let response = null;
@@ -32,25 +31,20 @@ export async function GET(request: NextRequest) {
                     },
                 });
 
-                // If successful (200-299), break out of retry loop
                 if (response.ok) {
                     console.log(`✓ Proxy success on attempt ${attempt}: ${url}`);
                     break;
                 }
 
-                // If 503, retry after a short delay
                 if (response.status === 503 && attempt < MAX_RETRIES) {
                     console.warn(`⚠ Got 503 on attempt ${attempt}, retrying... (${url})`);
                     lastError = `503 on attempt ${attempt}`;
-                    // Wait 100ms before retry
                     await new Promise(resolve => setTimeout(resolve, 100));
                     continue;
                 }
 
-                // For other errors (403, 404, etc), don't retry
                 console.warn(`✗ Got ${response.status} on attempt ${attempt}: ${url}`);
                 break;
-
             } catch (fetchError) {
                 lastError = fetchError;
                 if (attempt < MAX_RETRIES) {
@@ -68,26 +62,10 @@ export async function GET(request: NextRequest) {
 
         const contentType = response.headers.get('Content-Type');
 
-        // Handle m3u8 playlists: rewrite URLs to go through proxy
+        // Handle m3u8 playlists
         if (contentType && (contentType.includes('application/vnd.apple.mpegurl') || contentType.includes('application/x-mpegurl') || url.endsWith('.m3u8'))) {
             const text = await response.text();
-            const baseUrl = new URL(url);
-
-            const modifiedText = text.split('\n').map(line => {
-                // Skip comments and empty lines
-                if (line.trim().startsWith('#') || !line.trim()) {
-                    return line;
-                }
-
-                // Resolve relative URLs
-                try {
-                    const absoluteUrl = new URL(line.trim(), baseUrl).toString();
-                    // Wrap in proxy
-                    return `${request.nextUrl.origin}/api/proxy?url=${encodeURIComponent(absoluteUrl)}`;
-                } catch (e) {
-                    return line;
-                }
-            }).join('\n');
+            const modifiedText = await processM3u8Content(text, url, request.nextUrl.origin);
 
             return new NextResponse(modifiedText, {
                 status: response.status,
@@ -101,22 +79,15 @@ export async function GET(request: NextRequest) {
             });
         }
 
-        // For non-m3u8 content (segments, mp4, etc.), stream directly
+        // For non-m3u8 content
         const headers = new Headers();
-
-        // Copy headers but exclude problematic ones
         response.headers.forEach((value, key) => {
             const lowerKey = key.toLowerCase();
-            if (
-                lowerKey !== 'content-encoding' &&
-                lowerKey !== 'content-length' &&
-                lowerKey !== 'transfer-encoding'
-            ) {
+            if (!['content-encoding', 'content-length', 'transfer-encoding'].includes(lowerKey)) {
                 headers.set(key, value);
             }
         });
 
-        // Add CORS headers to allow playback
         headers.set('Access-Control-Allow-Origin', '*');
         headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
         headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');

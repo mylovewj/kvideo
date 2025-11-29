@@ -19,6 +19,9 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
   const [videoError, setVideoError] = useState<string>('');
   const [useProxy, setUseProxy] = useState(false);
   const [shouldAutoPlay, setShouldAutoPlay] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_MANUAL_RETRIES = 20;
+
   // Use reactive hook to subscribe to history updates
   // This ensures the component re-renders when history is hydrated from localStorage
   const viewingHistory = useHistoryStore(state => state.viewingHistory);
@@ -84,8 +87,27 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
     setVideoError(error);
   };
 
+  const handleRetry = () => {
+    if (retryCount >= MAX_MANUAL_RETRIES) return;
+
+    setRetryCount(prev => prev + 1);
+    setVideoError('');
+    setShouldAutoPlay(true);
+    // Toggle proxy to try different path, but since we are already in error state which likely means proxy failed (or direct failed),
+    // we can try toggling or just force re-render.
+    // Requirement says: "try without proxy and proxy and same as before"
+    // We will just toggle useProxy state to force a refresh with/without proxy.
+    // However, if we want to cycle, we can just toggle.
+    // But the requirement says "proxy attempt count to 20".
+    // So we just increment count and maybe toggle proxy or keep it.
+    // Let's toggle it to give best chance.
+    // Actually requirement says "try no proxy and proxy and same as before".
+    // So simple toggle is fine.
+    setUseProxy(prev => !prev);
+  };
+
   const finalPlayUrl = useProxy
-    ? `/api/proxy?url=${encodeURIComponent(playUrl)}`
+    ? `/api/proxy?url=${encodeURIComponent(playUrl)}&retry=${retryCount}` // Add retry param to force fresh request
     : playUrl;
 
   if (!playUrl) {
@@ -123,12 +145,22 @@ export function VideoPlayer({ playUrl, videoId, currentEpisode, onBack }: VideoP
                 <Icons.ChevronLeft size={16} />
                 <span>返回</span>
               </Button>
+              {retryCount < MAX_MANUAL_RETRIES && (
+                <Button
+                  variant="primary"
+                  onClick={handleRetry}
+                  className="flex items-center gap-2"
+                >
+                  <Icons.RefreshCw size={16} />
+                  <span>重试 ({retryCount}/{MAX_MANUAL_RETRIES})</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
       ) : (
         <CustomVideoPlayer
-          key={useProxy ? 'proxy' : 'direct'} // Force remount when switching modes
+          key={`${useProxy ? 'proxy' : 'direct'}-${retryCount}`} // Force remount when switching modes or retrying
           src={finalPlayUrl}
           onError={handleVideoError}
           onTimeUpdate={handleTimeUpdate}

@@ -59,9 +59,9 @@ export function useMobileUtilities({
         }, 3000);
     }, [setToastMessage, setShowToast, toastTimeoutRef]);
 
-    const handleCopyLink = useCallback(async () => {
+    const handleCopyLink = useCallback(async (url?: string) => {
         try {
-            await navigator.clipboard.writeText(src);
+            await navigator.clipboard.writeText(url || src);
             showToastNotification('链接已复制到剪贴板');
         } catch (error) {
             console.error('Copy failed:', error);

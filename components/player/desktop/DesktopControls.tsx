@@ -17,6 +17,7 @@ interface DesktopControlsProps {
     showVolumeBar: boolean;
     isPiPSupported: boolean;
     isAirPlaySupported: boolean;
+    isProxied?: boolean;
     progressBarRef: React.RefObject<HTMLDivElement | null>;
     volumeBarRef: React.RefObject<HTMLDivElement | null>;
     onTogglePlay: () => void;
@@ -31,7 +32,7 @@ interface DesktopControlsProps {
     onToggleSpeedMenu: () => void;
     onToggleMoreMenu: () => void;
     onSpeedChange: (speed: number) => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     onProgressClick: (e: React.MouseEvent<HTMLDivElement>) => void;
     onProgressMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
     onSpeedMenuMouseEnter: () => void;

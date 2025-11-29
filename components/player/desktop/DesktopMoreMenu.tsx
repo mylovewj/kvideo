@@ -3,14 +3,16 @@ import { Icons } from '@/components/ui/Icon';
 
 interface DesktopMoreMenuProps {
     showMoreMenu: boolean;
+    isProxied?: boolean;
     onToggleMoreMenu: () => void;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
 }
 
 export function DesktopMoreMenu({
     showMoreMenu,
+    isProxied = false,
     onToggleMoreMenu,
     onMouseEnter,
     onMouseLeave,
@@ -40,13 +42,32 @@ export function DesktopMoreMenu({
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                 >
-                    <button
-                        onClick={onCopyLink}
-                        className="w-full px-4 py-2.5 text-left text-sm text-[var(--text-color)] hover:bg-[color-mix(in_srgb,var(--accent-color)_15%,transparent)] rounded-[var(--radius-2xl)] transition-colors flex items-center gap-3"
-                    >
-                        <Icons.Link size={18} />
-                        <span>复制链接</span>
-                    </button>
+                    {isProxied ? (
+                        <>
+                            <button
+                                onClick={() => onCopyLink('original')}
+                                className="w-full px-4 py-2.5 text-left text-sm text-[var(--text-color)] hover:bg-[color-mix(in_srgb,var(--accent-color)_15%,transparent)] rounded-[var(--radius-2xl)] transition-colors flex items-center gap-3"
+                            >
+                                <Icons.Link size={18} />
+                                <span>复制原链接</span>
+                            </button>
+                            <button
+                                onClick={() => onCopyLink('proxy')}
+                                className="w-full px-4 py-2.5 text-left text-sm text-[var(--text-color)] hover:bg-[color-mix(in_srgb,var(--accent-color)_15%,transparent)] rounded-[var(--radius-2xl)] transition-colors flex items-center gap-3 mt-1"
+                            >
+                                <Icons.Link size={18} />
+                                <span>复制代理链接</span>
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => onCopyLink('original')}
+                            className="w-full px-4 py-2.5 text-left text-sm text-[var(--text-color)] hover:bg-[color-mix(in_srgb,var(--accent-color)_15%,transparent)] rounded-[var(--radius-2xl)] transition-colors flex items-center gap-3"
+                        >
+                            <Icons.Link size={18} />
+                            <span>复制链接</span>
+                        </button>
+                    )}
                 </div>
             )}
         </div>

@@ -4,12 +4,13 @@ import { useDesktopPlayerState } from '../hooks/useDesktopPlayerState';
 import { useDesktopPlayerLogic } from '../hooks/useDesktopPlayerLogic';
 
 interface DesktopControlsWrapperProps {
+    src: string;
     state: ReturnType<typeof useDesktopPlayerState>['state'];
     logic: ReturnType<typeof useDesktopPlayerLogic>;
     refs: ReturnType<typeof useDesktopPlayerState>['refs'];
 }
 
-export function DesktopControlsWrapper({ state, logic, refs }: DesktopControlsWrapperProps) {
+export function DesktopControlsWrapper({ src, state, logic, refs }: DesktopControlsWrapperProps) {
     const {
         isPlaying,
         currentTime,
@@ -54,6 +55,7 @@ export function DesktopControlsWrapper({ state, logic, refs }: DesktopControlsWr
     } = refs;
 
     const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+    const isProxied = src.includes('/api/proxy');
 
     return (
         <DesktopControls
@@ -70,6 +72,7 @@ export function DesktopControlsWrapper({ state, logic, refs }: DesktopControlsWr
             showVolumeBar={showVolumeBar}
             isPiPSupported={isPiPSupported}
             isAirPlaySupported={isAirPlaySupported}
+            isProxied={isProxied}
             progressBarRef={progressBarRef}
             volumeBarRef={volumeBarRef}
             onTogglePlay={togglePlay}

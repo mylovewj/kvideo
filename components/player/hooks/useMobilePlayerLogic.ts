@@ -115,7 +115,30 @@ export function useMobilePlayerLogic({
         togglePictureInPicture: fullscreenControls.togglePictureInPicture,
         changePlaybackSpeed: playbackControls.changePlaybackSpeed,
         showToastNotification: utilities.showToastNotification,
-        handleCopyLink: utilities.handleCopyLink,
+        handleCopyLink: (type: 'original' | 'proxy' = 'original') => {
+            let urlToCopy = src;
+
+            // If user wants original link, strip proxy prefix if present
+            if (type === 'original') {
+                if (urlToCopy.includes('/api/proxy?url=')) {
+                    const match = urlToCopy.match(/url=([^&]*)/);
+                    if (match && match[1]) {
+                        urlToCopy = decodeURIComponent(match[1]);
+                    }
+                }
+            }
+            // If user wants proxy link, ensure it has proxy prefix
+            else if (type === 'proxy') {
+                if (!urlToCopy.includes('/api/proxy?url=')) {
+                    urlToCopy = `${window.location.origin}/api/proxy?url=${encodeURIComponent(urlToCopy)}`;
+                } else if (urlToCopy.startsWith('/')) {
+                    // Ensure absolute URL for copy
+                    urlToCopy = `${window.location.origin}${urlToCopy}`;
+                }
+            }
+
+            utilities.handleCopyLink(urlToCopy);
+        },
         formatTime: playbackControls.formatTime
     };
 }

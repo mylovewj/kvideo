@@ -11,10 +11,11 @@ interface RightControlsProps {
     speeds: number[];
     onSpeedChange: (speed: number) => void;
     isPiPSupported: boolean;
+    isProxied?: boolean;
     onTogglePiP: () => void;
     onToggleMoreMenu: () => void;
     onToggleVolumeMenu: () => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     isMuted: boolean;
     volume: number;
     isFullscreen: boolean;
@@ -33,6 +34,7 @@ export function RightControls({
     speeds,
     onSpeedChange,
     isPiPSupported,
+    isProxied,
     onTogglePiP,
     onToggleMoreMenu,
     onToggleVolumeMenu,
@@ -108,9 +110,10 @@ export function RightControls({
                     volume={volume}
                     playbackRate={playbackRate}
                     isPiPSupported={isPiPSupported}
-                    onCopyLink={() => {
+                    isProxied={isProxied}
+                    onCopyLink={(type) => {
                         onToggleMoreMenu();
-                        onCopyLink();
+                        onCopyLink(type);
                     }}
                     onToggleVolumeMenu={() => {
                         onToggleMoreMenu();

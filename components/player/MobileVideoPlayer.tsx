@@ -127,6 +127,7 @@ export function MobileVideoPlayer({
       />
 
       <MobileControlsWrapper
+        src={src}
         state={state}
         logic={logic}
         refs={refs}

@@ -7,7 +7,8 @@ interface MobileMoreMenuProps {
     volume: number;
     playbackRate: number;
     isPiPSupported: boolean;
-    onCopyLink: () => void;
+    isProxied?: boolean;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     onToggleVolumeMenu: () => void;
     onToggleSpeedMenu: () => void;
     onTogglePiP: () => void;
@@ -19,6 +20,7 @@ export function MobileMoreMenu({
     volume,
     playbackRate,
     isPiPSupported,
+    isProxied = false,
     onCopyLink,
     onToggleVolumeMenu,
     onToggleSpeedMenu,
@@ -30,17 +32,44 @@ export function MobileMoreMenu({
         <div className="absolute bottom-full right-0 mb-2 min-w-[160px] z-[100] menu-container">
             <div className="bg-[rgba(255,255,255,0.1)] backdrop-blur-[25px] rounded-[var(--radius-2xl)] border border-[rgba(255,255,255,0.2)] shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden">
                 {/* Copy Link Option */}
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onCopyLink();
-                    }}
-                    className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/20 flex items-center gap-3 transition-all touch-manipulation cursor-pointer"
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
-                >
-                    <Icons.Link size={18} />
-                    <span>复制链接</span>
-                </button>
+                {isProxied ? (
+                    <>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCopyLink('original');
+                            }}
+                            className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/20 flex items-center gap-3 transition-all touch-manipulation cursor-pointer"
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                        >
+                            <Icons.Link size={18} />
+                            <span>复制原链接</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCopyLink('proxy');
+                            }}
+                            className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/20 flex items-center gap-3 transition-all touch-manipulation cursor-pointer border-t border-white/10"
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
+                        >
+                            <Icons.Link size={18} />
+                            <span>复制代理链接</span>
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onCopyLink('original');
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/20 flex items-center gap-3 transition-all touch-manipulation cursor-pointer"
+                        style={{ WebkitTapHighlightColor: 'transparent' }}
+                    >
+                        <Icons.Link size={18} />
+                        <span>复制链接</span>
+                    </button>
+                )}
 
                 <div className="h-px bg-white/10 my-1" />
 

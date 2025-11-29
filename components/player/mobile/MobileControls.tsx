@@ -17,6 +17,7 @@ interface MobileControlsProps {
     showVolumeMenu: boolean;
     showSpeedMenu: boolean;
     isPiPSupported: boolean;
+    isProxied?: boolean;
     progressBarRef: React.RefObject<HTMLDivElement | null>;
     onTogglePlay: () => void;
     onSkipVideo: (seconds: number, side: 'left' | 'right') => void;
@@ -28,7 +29,7 @@ interface MobileControlsProps {
     onTogglePiP: () => void;
     onVolumeChange: (volume: number) => void;
     onSpeedChange: (speed: number) => void;
-    onCopyLink: () => void;
+    onCopyLink: (type?: 'original' | 'proxy') => void;
     onProgressClick: (e: React.MouseEvent<HTMLDivElement>) => void;
     onProgressTouchStart: (e: React.TouchEvent<HTMLDivElement>) => void;
     onProgressTouchMove: (e: React.TouchEvent<HTMLDivElement>) => void;
