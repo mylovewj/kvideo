@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { TagManager } from '@/components/home/TagManager';
 import { AdultContentGrid } from './AdultContentGrid';
 import { useAdultTagManager } from '@/lib/hooks/useAdultTagManager';
@@ -25,7 +24,6 @@ export function AdultContent({ onSearch }: AdultContentProps) {
         handleDeleteTag,
         handleRestoreDefaults,
         handleDragEnd,
-        loading: tagsLoading,
     } = useAdultTagManager();
 
     // Get the category value from selected tag
@@ -33,37 +31,17 @@ export function AdultContent({ onSearch }: AdultContentProps) {
 
     const {
         videos,
-        loading: contentLoading,
+        loading,
         hasMore,
         prefetchRef,
         loadMoreRef,
     } = useAdultContent(categoryValue);
-
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
 
     const handleVideoClick = (video: any) => {
         if (onSearch) {
             onSearch(video.vod_name);
         }
     };
-
-    if (!mounted || tagsLoading) {
-        return (
-            <div className="animate-fade-in">
-                <div className="mb-6 h-8 w-24 bg-[var(--glass-bg)] rounded animate-pulse" />
-                <div className="mb-8 h-10 w-full bg-[var(--glass-bg)] rounded animate-pulse" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {[...Array(10)].map((_, i) => (
-                        <div key={i} className="aspect-[2/3] bg-[var(--glass-bg)] rounded-[var(--radius-2xl)] animate-pulse" />
-                    ))}
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="animate-fade-in">
@@ -84,9 +62,10 @@ export function AdultContent({ onSearch }: AdultContentProps) {
                 onDragEnd={handleDragEnd}
                 onJustAddedTagHandled={() => setJustAddedTag(false)}
             />
+
             <AdultContentGrid
                 videos={videos}
-                loading={contentLoading}
+                loading={loading}
                 hasMore={hasMore}
                 onVideoClick={handleVideoClick}
                 prefetchRef={prefetchRef}

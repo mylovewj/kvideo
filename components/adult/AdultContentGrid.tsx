@@ -31,28 +31,39 @@ export function AdultContentGrid({
     prefetchRef,
     loadMoreRef,
 }: AdultContentGridProps) {
+    if (videos.length === 0 && !loading) {
+        return <AdultGridEmpty />;
+    }
+
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
                 {videos.map((video) => (
-                    <div
+                    <Link
                         key={`${video.source}-${video.vod_id}`}
+                        href={`/secret?q=${encodeURIComponent(video.vod_name)}`}
                         className="group cursor-pointer"
-                        onClick={() => onVideoClick?.(video)}
+                        onClick={(e) => {
+                            // Allow default behavior for modifier keys (new tab, etc.)
+                            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+                            e.preventDefault();
+                            onVideoClick?.(video);
+                        }}
                         style={{
                             contain: 'layout style paint',
                             contentVisibility: 'auto'
                         }}
                     >
                         <Card hover className="overflow-hidden p-0 h-full" blur={false}>
-                            <div className="relative aspect-[2/3] overflow-hidden bg-[var(--glass-bg)]">
+                            <div className="relative aspect-[2/3] overflow-hidden bg-[var(--glass-bg)] rounded-[var(--radius-2xl)]">
                                 {video.vod_pic ? (
                                     <Image
                                         src={video.vod_pic}
                                         alt={video.vod_name}
                                         fill
                                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105 rounded-[var(--radius-2xl)]"
                                         loading="eager"
                                         unoptimized
                                     />
@@ -80,62 +91,51 @@ export function AdultContentGrid({
                                 )}
                             </div>
                         </Card>
-                    </div>
+                    </Link>
                 ))}
             </div>
 
-            {/* Prefetch Trigger */}
+            {/* Prefetch Trigger - Earlier */}
             {hasMore && !loading && <div ref={prefetchRef} className="h-1" />}
 
             {/* Loading Indicator */}
-            {loading && (
-                <div className="flex justify-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent-color)] border-t-transparent"></div>
-                        <p className="text-sm text-[var(--text-color-secondary)]">加载中...</p>
-                    </div>
-                </div>
-            )}
+            {loading && <AdultGridLoading />}
 
             {/* Intersection Observer Target */}
             {hasMore && !loading && <div ref={loadMoreRef} className="h-20" />}
 
             {/* No More Content */}
-            {!loading && !hasMore && videos.length > 0 && (
-                <div className="text-center py-12">
-                    <p className="text-[var(--text-color-secondary)]">没有更多内容了</p>
-                </div>
-            )}
+            {!hasMore && videos.length > 0 && <AdultGridNoMore />}
+        </>
+    );
+}
 
-            {/* Empty State */}
-            {!loading && videos.length === 0 && (
-                <div className="text-center py-20">
-                    <div className="flex justify-center mb-4">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="64"
-                            height="64"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-[var(--text-color-secondary)]"
-                        >
-                            <rect width="18" height="18" x="3" y="3" rx="2" />
-                            <path d="M7 3v18" />
-                            <path d="M3 7.5h4" />
-                            <path d="M3 12h18" />
-                            <path d="M3 16.5h4" />
-                            <path d="M17 3v18" />
-                            <path d="M17 7.5h4" />
-                            <path d="M17 16.5h4" />
-                        </svg>
-                    </div>
-                    <p className="text-[var(--text-color-secondary)]">暂无内容</p>
-                </div>
-            )}
+function AdultGridLoading() {
+    return (
+        <div className="flex justify-center py-12">
+            <div className="flex flex-col items-center gap-3">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[var(--accent-color)] border-t-transparent"></div>
+                <p className="text-sm text-[var(--text-color-secondary)]">加载中...</p>
+            </div>
+        </div>
+    );
+}
+
+function AdultGridNoMore() {
+    return (
+        <div className="text-center py-12">
+            <p className="text-[var(--text-color-secondary)]">没有更多内容了</p>
+        </div>
+    );
+}
+
+function AdultGridEmpty() {
+    // Using require to avoid top-level import issues if any, matching MovieGrid pattern
+    const { Icons } = require('@/components/ui/Icon');
+    return (
+        <div className="text-center py-20">
+            <Icons.Film size={64} className="text-[var(--text-color-secondary)] mx-auto mb-4" />
+            <p className="text-[var(--text-color-secondary)]">暂无内容</p>
         </div>
     );
 }

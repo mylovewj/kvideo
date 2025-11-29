@@ -27,6 +27,9 @@ export const MovieCard = memo(function MovieCard({ movie, onMovieClick }: MovieC
     <Link
       href={`/?q=${encodeURIComponent(movie.title)}`}
       onClick={(e) => {
+        // Allow default behavior for modifier keys (new tab, etc.)
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
         e.preventDefault();
         onMovieClick(movie);
       }}
