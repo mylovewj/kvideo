@@ -33,14 +33,17 @@ export const MovieCard = memo(function MovieCard({ movie, onMovieClick }: MovieC
         e.preventDefault();
         onMovieClick(movie);
       }}
-      className="group cursor-pointer"
+      className="group cursor-pointer hover:translate-y-[-2px] transition-transform duration-200 ease-out"
       style={{
-        contain: 'layout style paint',
+        position: 'relative',
+        zIndex: 1,
         contentVisibility: 'auto'
       }}
+      onMouseEnter={(e) => (e.currentTarget.style.zIndex = '100')}
+      onMouseLeave={(e) => (e.currentTarget.style.zIndex = '1')}
     >
-      <Card hover className="overflow-hidden p-0 h-full" blur={false}>
-        <div className="relative aspect-[2/3] overflow-hidden bg-[var(--glass-bg)] rounded-[var(--radius-2xl)]">
+      <Card hover={false} className="p-0 h-full shadow-[0_2px_8px_var(--shadow-color)] hover:shadow-[0_8px_24px_var(--shadow-color)] transition-shadow duration-200 ease-out" blur={false}>
+        <div className="relative aspect-[2/3] bg-[var(--glass-bg)] rounded-[var(--radius-2xl)]">
           <Image
             src={movie.cover}
             alt={movie.title}

@@ -99,7 +99,6 @@ nav:where(.sticky, .fixed),
 [class*="grid"]>* {
     content-visibility: auto;
     contain-intrinsic-size: auto 400px;
-    contain: layout style paint;
 }
 
 [class*="grid"]>a {
