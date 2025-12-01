@@ -86,7 +86,6 @@ export const VideoGrid = memo(function VideoGrid({ videos, className = '' }: Vid
           // Optimize rendering performance
           // willChange: 'auto', // Removed to let browser decide
           // contain: 'layout style paint', // Removed to fix z-index stacking context
-          contentVisibility: 'auto',
         }}
       >
         {visibleItems.map(({ video, videoUrl, cardId }) => {

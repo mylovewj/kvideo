@@ -96,10 +96,10 @@ nav:where(.sticky, .fixed),
     transform: translateZ(0);
 }
 
-[class*="grid"]>* {
+/* [class*="grid"]>* {
     content-visibility: auto;
     contain-intrinsic-size: auto 400px;
-}
+} */
 
 [class*="grid"]>a {
     animation: fadeInUp 0.2s ease-out;

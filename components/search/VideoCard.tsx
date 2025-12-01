@@ -28,9 +28,11 @@ export const VideoCard = memo<VideoCardProps>(({
     return (
         <div
             style={{
-                // contain: 'layout style paint', // Removed to fix z-index stacking context
-                contentVisibility: 'auto',
+                position: 'relative',
+                zIndex: 1,
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.zIndex = '100')}
+            onMouseLeave={(e) => (e.currentTarget.style.zIndex = '1')}
         >
             <Link
                 key={cardId}
@@ -40,12 +42,6 @@ export const VideoCard = memo<VideoCardProps>(({
                 aria-label={`${video.vod_name}${video.vod_remarks ? ` - ${video.vod_remarks}` : ''}`}
                 prefetch={false}
                 className="group cursor-pointer hover:translate-y-[-2px] transition-transform duration-200 ease-out block h-full"
-                style={{
-                    position: 'relative',
-                    zIndex: 1,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.zIndex = '100')}
-                onMouseLeave={(e) => (e.currentTarget.style.zIndex = '1')}
             >
                 <Card
                     className="p-0 flex flex-col h-full bg-[var(--bg-color)]/50 backdrop-blur-none saturate-100 shadow-sm border-[var(--glass-border)] hover:shadow-lg transition-shadow"
