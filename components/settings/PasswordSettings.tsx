@@ -38,7 +38,7 @@ export function PasswordSettings({
     };
 
     return (
-        <SettingsSection title="访问控制" description="为应用启用密码保护功能。">
+        <SettingsSection title="本地访问控制 (本设备)" description="仅为此浏览器/设备启用密码保护。此设置不会同步，且不影响全局环境变量密码。">
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-[var(--text-color)]">
