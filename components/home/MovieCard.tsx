@@ -23,8 +23,8 @@ interface MovieCardProps {
 }
 
 export const MovieCard = memo(function MovieCard({ movie, onMovieClick }: MovieCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const [fallbackError, setFallbackError] = useState(false);
+  const [imageSrc, setImageSrc] = useState(movie.cover);
+  const [isFinalError, setIsFinalError] = useState(false);
 
   return (
     <Link
