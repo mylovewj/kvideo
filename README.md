@@ -166,24 +166,33 @@ docker run -d -p 3000:3000 -e ACCESS_PASSWORD=your_secret_password --name kvideo
 
 #### 选项 2：Cloudflare Pages 部署 (推荐)
 
-1. **Fork** 本仓库到你的 GitHub 账户。
-2. 点击下方按钮进入 Cloudflare Pages 控制台：
-   <a href="https://dash.cloudflare.com/?to=/:account/pages/new" target="_blank">
-     <img src="https://img.shields.io/badge/Deploy%20to-Cloudflare%20Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Deploy to Cloudflare Pages">
-   </a>
-3. 选择 **"Connect to Git"**。
-4. 选择你刚刚 Fork 的 `KVideo` 仓库。
-5. **Build Settings（构建设置）** - 请确保完全一致：
-   - **Framework Preset**: `Next.js`
-   - **Build command**: `npm run pages:build`
-   - **Output directory**: `.vercel/output/static`
-6. 点击 **"Save and Deploy"**。
-7. **关键步骤：配置 Runtime（部署完成后）**：
-   - 进入项目详情页，点击 **"Settings"** -> **"Runtime"**。
-   - **Compatibility date**: 设置为 `2025-11-17`
-   - **Compatibility flags**: 添加 `nodejs_compat`
-   - **Fail open/closed**: 选择 `Fail open`
-   - *注意：如果初次部署失败，配置完这些选项后请并在 "Deployments" 页面点击 "Retry deployment" 重试。*
+此方法完全免费且速度极快，是部署本项目的最佳选择。
+
+1. **Fork 本仓库**：首先将项目 Fork 到你的 GitHub 账户。
+
+2. **创建项目**：
+   - 点击访问 [**Cloudflare Pages - Connect Git**](https://dash.cloudflare.com/?to=/:account/pages/new/provider/github)。
+   - 如果未连接 GitHub，请点击 **Connect GitHub**；若已连接，直接选择你刚刚 Fork 的 `KVideo` 项目并点击 **Begin setup**。
+
+3. **配置构建参数**：
+   - **Project name**: 默认为 `kvideo` (建议保持不变，后续链接基于此名称)
+   - **Framework Preset**: 选择 `Next.js`
+   - **Build command**: 输入 `npm run pages:build`
+   - **Build output directory**: 输入 `.vercel/output/static`
+   - 点击 **Save and Deploy**。
+
+4. **⚠️ 关键步骤：修复运行时环境**
+   > *注意：此时部署虽然显示"Success"，但你会发现访问网页会报错。这是因为缺少必要的兼容性配置。请按以下步骤修复：*
+
+   - 进入 **[项目设置页面](https://dash.cloudflare.com/?to=/:account/pages/view/kvideo/settings/production)** (如果你的项目名不是 kvideo，请在控制台手动查找 Settings -> Functions)。
+   - 拉到页面底部找到 **Compatibility flags** 部分。
+   - 添加标志：`nodejs_compat`
+
+5. **重试部署 (生效配置)**：
+   - 回到 **[项目概览页面](https://dash.cloudflare.com/?to=/:account/pages/view/kvideo)**。
+   - 在 **Deployments** 列表中，找到最新的那次部署。
+   - 点击右侧的三个点 `...` 菜单，选择 **Retry deployment**。
+   - 等待新的部署完成后，你的 KVideo 就部署成功了！
 
 #### 选项 3：Docker 部署
 
