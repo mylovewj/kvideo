@@ -44,12 +44,11 @@ export function useHlsPlayer({
             if (!isNativeHlsSupported) {
                 hls = new Hls({
                     enableWorker: true,
-                    lowLatencyMode: true,
-                    startFragPrefetch: true, // Fetch first segment immediately while parsing manifest
-                    // Aggressively reduce buffering requirement for startup
-                    maxBufferLength: 10,
-                    maxMaxBufferLength: 20,
-                    // Try to start playing as soon as we have enough data
+                    lowLatencyMode: false, // Disable low latency for more stable playback
+                    startFragPrefetch: false, // Don't prefetch - let browser handle buffering
+                    // Use relaxed buffer settings
+                    maxBufferLength: 30,
+                    maxMaxBufferLength: 60,
                     fragLoadingMaxRetry: 3,
                     manifestLoadingMaxRetry: 3,
                     levelLoadingMaxRetry: 3,
