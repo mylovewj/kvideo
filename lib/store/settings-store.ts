@@ -91,7 +91,7 @@ export const settingsStore = {
       return {
         sources: getDefaultSources(),
         adultSources: getDefaultAdultSources(),
-        subscriptions: [],
+        subscriptions: getEnvSubscriptions(),
         sortBy: 'default',
         searchHistory: true,
         watchHistory: true,
@@ -111,7 +111,7 @@ export const settingsStore = {
       return {
         sources: getDefaultSources(),
         adultSources: getDefaultAdultSources(),
-        subscriptions: [],
+        subscriptions: getEnvSubscriptions(),
         sortBy: 'default',
         searchHistory: true,
         watchHistory: true,

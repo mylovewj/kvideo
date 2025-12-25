@@ -1,6 +1,6 @@
 # KVideo
 
-![KVideo Banner](public/icon.png)
+
 
 > 一个基于 Next.js 16 构建的现代化视频聚合播放平台。采用独特的 "Liquid Glass" 设计语言，提供流畅的视觉体验和强大的视频搜索功能。
 
