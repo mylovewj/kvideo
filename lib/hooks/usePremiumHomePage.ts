@@ -16,6 +16,7 @@ export function usePremiumHomePage() {
     const [query, setQuery] = useState('');
     const [hasSearched, setHasSearched] = useState(false);
     const [currentSortBy, setCurrentSortBy] = useState('default');
+    const [isRetrying, setIsRetrying] = useState(false);
 
     // Get premium sources from settings store (supports user customization)
     // 使用状态来响应 settingsStore 的变化
@@ -56,8 +57,27 @@ export function usePremiumHomePage() {
         onUrlUpdate
     );
 
+    // Re-sort results when sort preference changes
+    useEffect(() => {
+        if (hasSearched && results.length > 0) {
+            applySorting(currentSortBy as any);
+        }
+    }, [currentSortBy, applySorting, hasSearched, results.length]);
+
+    // Handle retry after reset completes
+    useEffect(() => {
+        if (isRetrying && query && !loading) {
+            const settings = settingsStore.getSettings();
+            const enabledSources = settings.premiumSources.filter(s => s.enabled);
+            if (enabledSources.length > 0) {
+                performSearch(query, enabledSources, settings.sortBy);
+                setHasSearched(true);
+            }
+            setIsRetrying(false);
+        }
+    }, [isRetrying, query, loading, performSearch]);
+
     // Load sort preference on mount and subscribe to changes
-    // 这个 useEffect 处理设置变化和自动重试逻辑
     useEffect(() => {
         const updateSettings = () => {
             const settings = settingsStore.getSettings();
@@ -71,11 +91,6 @@ export function usePremiumHomePage() {
             // 但只执行一次，不进行重试
             const enabledSources = settings.premiumSources.filter(s => s.enabled);
             const hasSources = enabledSources.length > 0;
-
-            // Re-sort results when sort preference changes
-            if (hasSearched && results.length > 0 && applySorting) {
-                applySorting(settings.sortBy as any);
-            }
 
             // 如果有查询，但还没有搜索过，且现在有可用源，则执行一次搜索
             if (query && hasSources && !hasSearched && !loading && !isSearchInProgress.current) {
@@ -94,7 +109,7 @@ export function usePremiumHomePage() {
         // Subscribe to changes
         const unsubscribe = settingsStore.subscribe(updateSettings);
         return () => unsubscribe();
-    }, [query, hasSearched, loading, performSearch, currentSortBy, results.length, applySorting]);
+    }, [query, hasSearched, loading, performSearch, currentSortBy]);
 
     // Load cached results on mount
     useEffect(() => {
@@ -132,28 +147,21 @@ export function usePremiumHomePage() {
 
         setHasSearched(false);
         setQuery('');
+        setIsRetrying(false);
         resetSearch();
         router.replace('/premium', { scroll: false });
     };
 
-    // 重新搜索逻辑（直接执行，不重试）
+    // 重新搜索逻辑（使用状态驱动，避免竞态条件）
     const handleRetry = useCallback(() => {
         if (query) {
             // 重置状态但保留查询
             isSearchInProgress.current = false;
             resetSearch();
-
-            // 延迟执行以确保状态重置完成
-            setTimeout(() => {
-                const settings = settingsStore.getSettings();
-                const enabledSources = settings.premiumSources.filter(s => s.enabled);
-                if (enabledSources.length > 0) {
-                    performSearch(query, enabledSources, settings.sortBy);
-                    setHasSearched(true);
-                }
-            }, 100);
+            // 触发重试标志，useEffect 会在状态重置后执行搜索
+            setIsRetrying(true);
         }
-    }, [query, resetSearch, performSearch]);
+    }, [query, resetSearch]);
 
     // 获取搜索统计信息（与 useHomePage.ts 保持一致）
     const getSearchStats = useCallback(() => {

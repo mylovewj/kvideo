@@ -36,6 +36,7 @@ function HomePage() {
         zIndex: 1000
       }}>
         <SearchForm
+          key={`search-${query}-${hasSearched}`}
           onSearch={handleSearch}
           onClear={handleReset}
           isLoading={loading}

@@ -18,6 +18,7 @@ export function useHomePage() {
     const [query, setQuery] = useState('');
     const [hasSearched, setHasSearched] = useState(false);
     const [currentSortBy, setCurrentSortBy] = useState('default');
+    const [isRetrying, setIsRetrying] = useState(false);
 
     const onUrlUpdate = useCallback((q: string) => {
         router.replace(`/?q=${encodeURIComponent(q)}`, { scroll: false });
@@ -45,6 +46,19 @@ export function useHomePage() {
             applySorting(currentSortBy as any);
         }
     }, [currentSortBy, applySorting, hasSearched, results.length]);
+
+    // Handle retry after reset completes
+    useEffect(() => {
+        if (isRetrying && query && !loading) {
+            const settings = settingsStore.getSettings();
+            const enabledSources = settings.sources.filter(s => s.enabled);
+            if (enabledSources.length > 0) {
+                performSearch(query, enabledSources, settings.sortBy);
+                setHasSearched(true);
+            }
+            setIsRetrying(false);
+        }
+    }, [isRetrying, query, loading, performSearch]);
 
     // Load sort preference on mount and subscribe to changes
     useEffect(() => {
@@ -126,28 +140,21 @@ export function useHomePage() {
 
         setHasSearched(false);
         setQuery('');
+        setIsRetrying(false);
         resetSearch();
         router.replace('/', { scroll: false });
     };
 
-    // 重新搜索逻辑（直接执行，不重试）
+    // 重新搜索逻辑（使用状态驱动，避免竞态条件）
     const handleRetry = useCallback(() => {
         if (query) {
             // 重置状态但保留查询
             isSearchInProgress.current = false;
             resetSearch();
-
-            // 延迟执行以确保状态重置完成
-            setTimeout(() => {
-                const settings = settingsStore.getSettings();
-                const enabledSources = settings.sources.filter(s => s.enabled);
-                if (enabledSources.length > 0) {
-                    performSearch(query, enabledSources, settings.sortBy);
-                    setHasSearched(true);
-                }
-            }, 100);
+            // 触发重试标志，useEffect 会在状态重置后执行搜索
+            setIsRetrying(true);
         }
-    }, [query, resetSearch, performSearch]);
+    }, [query, resetSearch]);
 
     // 获取搜索统计信息
     const getSearchStats = useCallback(() => {
